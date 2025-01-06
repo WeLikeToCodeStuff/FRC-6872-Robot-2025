@@ -1,11 +1,15 @@
+
 plugins {
     id "java"
-    id "edu.wpi.first.GradleRIO" version "2024.3.2"
+    id "edu.wpi.first.GradleRIO" version "2025.1.1"
+    id "idea"
 }
 
+def javaVersion = JavaVersion.VERSION_17
+
 java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = javaVersion
+    targetCompatibility = javaVersion
 }
 
 def ROBOT_MAIN_CLASS = "us.wltcs.frc.robot.Main"
@@ -33,6 +37,8 @@ deploy {
                 frcStaticFileDeploy(getArtifactTypeClass('FileTreeArtifact')) {
                     files = project.fileTree('src/main/deploy')
                     directory = '/home/lvuser/deploy'
+                    deleteOldFiles = false // Change to true to delete files on roboRIO that no
+                                           // longer exist in deploy directory of this project
                 }
             }
         }
@@ -45,11 +51,11 @@ def deployArtifact = deploy.targets.roborio.artifacts.frcJava
 wpi.java.debugJni = false
 
 // Set this to true to enable desktop support.
-def includeDesktopSupport = true
+//noinspection GroovyUnusedAssignment
+def includeDesktopSupport = false
 
-// Defining my dependencies. In this case, WPILib (+ friends), and vendor libraries.
-// Also defines JUnit 5.
 dependencies {
+    annotationProcessor wpi.java.deps.wpilibAnnotations()
     implementation wpi.java.deps.wpilib()
     implementation wpi.java.vendor.java()
 
@@ -58,7 +64,7 @@ dependencies {
 
     roborioRelease wpi.java.deps.wpilibJniRelease(wpi.platforms.roborio)
     roborioRelease wpi.java.vendor.jniRelease(wpi.platforms.roborio)
-
+    
     nativeDebug wpi.java.deps.wpilibJniDebug(wpi.platforms.desktop)
     nativeDebug wpi.java.vendor.jniDebug(wpi.platforms.desktop)
     simulationDebug wpi.sim.enableDebug()
@@ -67,22 +73,13 @@ dependencies {
     nativeRelease wpi.java.vendor.jniRelease(wpi.platforms.desktop)
     simulationRelease wpi.sim.enableRelease()
 
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.1'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-
-    // Google GSON for serializing automated moves
-    implementation 'com.google.code.gson:gson:2.11.0'
-
+    implementation "com.google.code.gson:gson:2.11.0"
     compileOnly 'org.projectlombok:lombok:1.18.36'
     annotationProcessor 'org.projectlombok:lombok:1.18.36'
 
     testCompileOnly 'org.projectlombok:lombok:1.18.36'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.36'
-}
 
-test {
-    useJUnitPlatform()
-    systemProperty 'junit.jupiter.extensions.autodetection.enabled', 'true'
 }
 
 // Simulation configuration (e.g. environment variables).
@@ -104,7 +101,23 @@ deployArtifact.jarTask = jar
 wpi.java.configureExecutableTasks(jar)
 wpi.java.configureTestTasks(test)
 
-// Configure string concat to always inline compile
 tasks.withType(JavaCompile) {
+    // Configure string concat to always inline compile
     options.compilerArgs.add '-XDstringConcat=inline'
+}
+
+
+idea {
+    project {
+        // The project.sourceCompatibility setting is not always picked up, so we set explicitly
+        languageLevel = javaVersion
+    }
+    module {
+        // Improve development & (especially) debugging experience (and IDEA's capabilities) by having libraries' source & javadoc attached
+        downloadJavadoc = true
+        downloadSources = true
+        // Exclude the following from indexing and search
+        excludeDirs+=file(".run" )
+        excludeDirs+=file(".vscode" )
+    }
 }

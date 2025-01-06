@@ -79,7 +79,7 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     // Serialize the movement
-    final SerializableMovement movement = new SerializableMovement((float) joystick.getX(), (float) joystick.getY(), (float) joystick.getZ(), joystick.getRawButton(1)j);
+    final SerializableMovement movement = new SerializableMovement((float) joystick.getX(), (float) joystick.getY(), (float) joystick.getZ(), joystick.getRawButton(1));
     System.out.println(gson.toJson(movement));
   }
 

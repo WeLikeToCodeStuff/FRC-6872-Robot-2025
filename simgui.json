@@ -5,32 +5,7 @@
       "/SmartDashboard/Auto choices": "String Chooser"
     }
   },
-  "NetworkTables": {
-    "Retained Values": {
-      "open": false
-    },
-    "transitory": {
-      "SmartDashboard": {
-        "open": true
-      }
-    }
-  },
   "NetworkTables Info": {
-    "Clients": {
-      "open": true
-    },
-    "Connections": {
-      "open": true
-    },
-    "shuffleboard@1": {
-      "Publishers": {
-        "open": true
-      },
-      "Subscribers": {
-        "open": true
-      },
-      "open": true
-    },
     "visible": true
   }
 }
