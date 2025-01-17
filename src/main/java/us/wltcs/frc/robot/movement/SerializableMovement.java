@@ -4,6 +4,7 @@ import edu.wpi.first.math.Pair;
 import edu.wpi.first.wpilibj.Joystick;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
 import lombok.Locked;
 
 import java.util.ArrayList;

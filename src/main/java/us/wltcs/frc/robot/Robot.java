@@ -80,6 +80,11 @@ public class Robot extends TimedRobot {
   public void teleopPeriodic() {
     // Serialize the movement
     final SerializableMovement movement = new SerializableMovement(joystick);
+
+    // Two methods for driving: driveCartesian() and drivePolar(). Refer to docs for more info.
+    mecanumDrive.driveCartesian(joystick.getX(), joystick.getY(), joystick.getZ());
+
+    /* TODO: Add time value to the JSON data to account time later on for recording movements */
     System.out.println(gson.toJson(movement));
   }
 
