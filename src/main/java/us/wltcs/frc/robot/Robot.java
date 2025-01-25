@@ -6,16 +6,15 @@ package us.wltcs.frc.robot;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.drive.MecanumDrive;
-import edu.wpi.first.wpilibj.drive.RobotDriveBase;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import us.wltcs.frc.robot.movement.SerializableMovement;
-import us.wltcs.frc.robot.util.math.RoundingUtil;
+import us.wltcs.frc.robot.utils.math.RoundingUtil;
+import us.wltcs.frc.robot.utils.input.JoystickUtils;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -32,9 +31,11 @@ public class Robot extends TimedRobot {
 
   private final Joystick joystick = new Joystick(0);
   private final MecanumDrive mecanumDrive = new MecanumDrive(MotorConstants.frontLeftMotorController, MotorConstants.rearLeftMotorController, MotorConstants.frontRightMotorController, MotorConstants.rearRightMotorController);
+  private final Timer timer = new Timer();
 
   @Override
   public void robotInit() {
+    timer.start();
     m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
@@ -46,7 +47,8 @@ public class Robot extends TimedRobot {
       SmartDashboard.putNumber("Main Joystick X value", RoundingUtil.roundNumber((float) joystick.getX(), 3));
       SmartDashboard.putNumber("Main Joystick Y value", RoundingUtil.roundNumber((float) joystick.getY(), 3));
       SmartDashboard.putNumber("Main Joystick Z value", RoundingUtil.roundNumber((float) joystick.getZ(), 3));
-    } catch (Exception ignored) {}
+    } catch (Exception ignored) {
+    }
   }
 
   @Override
@@ -71,44 +73,65 @@ public class Robot extends TimedRobot {
     }
   }
 
-  /** This function is called once when teleop is enabled. */
+  /**
+   * This function is called once when teleop is enabled.
+   */
   @Override
-  public void teleopInit() {}
-
-  /** This function is called periodically during operator control. */
-  @Override
-  public void teleopPeriodic() {
-    // Serialize the movement
-    final SerializableMovement movement = new SerializableMovement(joystick);
-
-    // Two methods for driving: driveCartesian() and drivePolar(). Refer to docs for more info.
-    mecanumDrive.driveCartesian(joystick.getX(), joystick.getY(), joystick.getZ());
-
-    /* TODO: Add time value to the JSON data to account time later on for recording movements */
-    System.out.println(gson.toJson(movement));
+  public void teleopInit() {
   }
 
-  /** This function is called once when the robot is disabled. */
+  /**
+   * This function is called periodically during operator control.
+   */
   @Override
-  public void disabledInit() {}
+  public void teleopPeriodic() {
+    mecanumDrive.driveCartesian(joystick.getX(), joystick.getY(), joystick.getZ());
+  }
 
-  /** This function is called periodically when disabled. */
+  /**
+   * This function is called once when the robot is disabled.
+   */
   @Override
-  public void disabledPeriodic() {}
+  public void disabledInit() {
+  }
 
-  /** This function is called once when test mode is enabled. */
+  /**
+   * This function is called periodically when disabled.
+   */
   @Override
-  public void testInit() {}
+  public void disabledPeriodic() {
+  }
 
-  /** This function is called periodically during test mode. */
+  /**
+   * This function is called once when test mode is enabled.
+   */
   @Override
-  public void testPeriodic() {}
+  public void testInit() {
+  }
 
-  /** This function is called once when the robot is first started up. */
+  /**
+   * This function is called periodically during test mode.
+   */
   @Override
-  public void simulationInit() {}
+  public void testPeriodic() {
+  }
 
-  /** This function is called periodically whilst in simulation. */
+  /**
+   * This function is called once when the robot is first started up.
+   */
   @Override
-  public void simulationPeriodic() {}
+  public void simulationInit() {
+  }
+
+  /**
+   * This function is called periodically whilst in simulation.
+   */
+  @Override
+  public void simulationPeriodic() {
+    if (JoystickUtils.isJoystickUsed(joystick, 0.1f)) {
+      // Serialize the movement
+      final SerializableMovement movement = new SerializableMovement(joystick, timer.get());
+      System.out.println(gson.toJson(movement));
+    }
+  }
 }

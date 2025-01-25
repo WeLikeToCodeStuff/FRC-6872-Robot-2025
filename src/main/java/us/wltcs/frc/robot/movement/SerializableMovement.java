@@ -1,33 +1,25 @@
 package us.wltcs.frc.robot.movement;
 
-import edu.wpi.first.math.Pair;
 import edu.wpi.first.wpilibj.Joystick;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Locked;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+
+import us.wltcs.frc.robot.utils.input.JoystickUtils;
 
 @AllArgsConstructor
 @Data
 public class SerializableMovement {
-    private final double x, y, z;
-    private final Map<Integer, Boolean> buttons = new HashMap<>();  
+  private final double x, y, z;
+  private final Map<Integer, Boolean> buttons;
+  private final double time;
 
-    public SerializableMovement(Joystick joystick) {
-        this.x = joystick.getX();
-        this.y = joystick.getZ();
-        this.z = joystick.getZ();
-        for (int i = 1; i <= joystick.getButtonCount(); i++) {
-            try {
-                this.buttons.put(i, joystick.getRawButton(i));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    }
+  public SerializableMovement(Joystick joystick, double time) {
+    this.x = joystick.getX();
+    this.y = joystick.getZ();
+    this.z = joystick.getZ();
+    this.time = time;
+    this.buttons = JoystickUtils.getJoystickButtons(joystick);
+  }
 }
