@@ -13,8 +13,8 @@ import edu.wpi.first.wpilibj.drive.MecanumDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import us.wltcs.frc.robot.movement.SerializableMovement;
-import us.wltcs.frc.robot.utils.math.RoundingUtil;
-import us.wltcs.frc.robot.utils.input.JoystickUtils;
+import us.wltcs.frc.robot.util.math.RoundingUtil;
+import us.wltcs.frc.robot.util.input.JoystickUtils;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -32,10 +32,12 @@ public class Robot extends TimedRobot {
   private final Joystick joystick = new Joystick(0);
   private final MecanumDrive mecanumDrive = new MecanumDrive(MotorConstants.frontLeftMotorController, MotorConstants.rearLeftMotorController, MotorConstants.frontRightMotorController, MotorConstants.rearRightMotorController);
   private final Timer timer = new Timer();
+  private long startTime;
 
   @Override
   public void robotInit() {
     timer.start();
+    startTime = System.currentTimeMillis();
     m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
@@ -130,7 +132,7 @@ public class Robot extends TimedRobot {
   public void simulationPeriodic() {
     if (JoystickUtils.isJoystickUsed(joystick, 0.1f)) {
       // Serialize the movement
-      final SerializableMovement movement = new SerializableMovement(joystick, timer.get());
+      final SerializableMovement movement = new SerializableMovement(joystick, System.currentTimeMillis() - startTime);
       System.out.println(gson.toJson(movement));
     }
   }

@@ -1,7 +1,9 @@
-package us.wltcs.frc.robot.utils.input;
+package us.wltcs.frc.robot.util.input;
 
 import edu.wpi.first.wpilibj.Joystick;
 import lombok.experimental.UtilityClass;
+import us.wltcs.frc.robot.LoggingConstants;
+import us.wltcs.frc.robot.util.logging.LogType;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,7 +20,7 @@ public class JoystickUtils {
       try {
         buttons.put(i, joystick.getRawButton(i));
       } catch (Exception e) {
-        e.fillInStackTrace();
+        LoggingConstants.movementLogger.log(LogType.ERROR, String.format("Invalid button ID %s", i));
       }
     }
 

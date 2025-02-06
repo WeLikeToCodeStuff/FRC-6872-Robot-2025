@@ -6,16 +6,16 @@ import lombok.Data;
 
 import java.util.Map;
 
-import us.wltcs.frc.robot.utils.input.JoystickUtils;
+import us.wltcs.frc.robot.util.input.JoystickUtils;
 
 @AllArgsConstructor
 @Data
 public class SerializableMovement {
   private final double x, y, z;
   private final Map<Integer, Boolean> buttons;
-  private final double time;
+  private final long time;
 
-  public SerializableMovement(Joystick joystick, double time) {
+  public SerializableMovement(final Joystick joystick, final long time) {
     this.x = joystick.getX();
     this.y = joystick.getZ();
     this.z = joystick.getZ();

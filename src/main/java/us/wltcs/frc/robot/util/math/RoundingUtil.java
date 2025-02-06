@@ -1,4 +1,4 @@
-package us.wltcs.frc.robot.utils.math;
+package us.wltcs.frc.robot.util.math;
 
 import lombok.experimental.UtilityClass;
 
