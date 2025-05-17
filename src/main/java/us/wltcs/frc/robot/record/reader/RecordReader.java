@@ -1,4 +1,7 @@
 package us.wltcs.frc.robot.record.reader;
 
-public class RecordReader {
+public interface RecordReader {
+
+    void execute(String[] parameters);
+
 }
