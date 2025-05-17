@@ -22,6 +22,7 @@ public class RecordRunner {
     public void next() {
         if (currentRecords == null) return;
 
+        System.out.print(currentRecords);
         currentRecords.stream().filter((record) -> record.getTick() == currentTick).forEach((record) -> {
             RecordReader reader = recordReaders.get(record.getAction());
             if (reader != null) {

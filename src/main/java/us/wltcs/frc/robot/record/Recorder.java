@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class Recorder {
-    private final File storageDirectory = new File("/recordings");
+    private final File storageDirectory = new File("/home/lvuser/recordings");
 
     private final Gson gsonSerializer = Robot.gson;
     private int tickCount = 0;
@@ -47,11 +47,12 @@ public class Recorder {
 
             autonomousFile.createNewFile();
 
+            System.out.println( cloneList.stream()
+            .map(((record) -> gsonSerializer.toJson(record)))
+            .collect(Collectors.toList()));
             Files.write(
                     autonomousFile.toPath(),
-                    cloneList.stream()
-                            .map(gsonSerializer::toJson)
-                            .collect(Collectors.toList())
+                    gsonSerializer.toJson(cloneList).getBytes()
             );
         } catch (Exception exception) {
             exception.printStackTrace();

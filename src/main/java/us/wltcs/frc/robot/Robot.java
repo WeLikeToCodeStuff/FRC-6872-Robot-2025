@@ -6,7 +6,8 @@ package us.wltcs.frc.robot;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonReader;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.Joystick;
@@ -25,6 +26,7 @@ import us.wltcs.frc.robot.util.input.JoystickUtils;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -62,7 +64,7 @@ public class Robot extends TimedRobot {
     startTime = System.currentTimeMillis(); 
     m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
     m_chooser.addOption("My Auto", kCustomAuto);
-    SmartDashboard.putData("Auto choices", m_chooser);
+    // SmartDashboard.putData("Auto choices", m_chooser);
     
   }
 
@@ -74,12 +76,17 @@ public class Robot extends TimedRobot {
       SmartDashboard.putNumber("Main Joystick Z value", RoundingUtil.roundNumber((float) joystick.getZ(), 3));
     } catch (Exception ignored) {
     }
+
+    if (joystick.getRawButton(1)) {
+      recorder.save();
+      System.out.print("Recording saved");
+    }
   }
 
   @Override
   public void autonomousInit() {
     File autonomousFile = new File(
-            "/recordings/"
+            "/home/lvuser/recordings/"
                     + ("red" == "red" ? "right.flux" : "left.flux")
     );
 
@@ -87,12 +94,14 @@ public class Robot extends TimedRobot {
       return;
     }
 
-      try {
-          final JsonReader jsonReader = new JsonReader(new FileReader(autonomousFile));
-          recordRunner.play(gson.fromJson(jsonReader, Record[].class));
-      } catch (FileNotFoundException e) {
-          throw new RuntimeException(e);
-      }
+    try {
+        final JsonElement jsonParser = JsonParser.parseReader(new FileReader(autonomousFile));
+        System.out.print(gson.fromJson(jsonParser, Record[].class));
+        // jsonReader.close();
+        // recordRunner.play(gson.fromJson(jsonReader));
+    } catch (IOException e) {
+        throw new RuntimeException(e);
+    }
 //    m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
 //    System.out.println("Auto selected: " + m_autoSelected);
   }
@@ -131,7 +140,7 @@ public class Robot extends TimedRobot {
     final double zRotation = joystick.getZ();
     mecanumDrive.driveCartesian(xSpeed, ySpeed, zRotation, Rotation2d.fromDegrees(0));
 
-//    MotorConstants.leftArmMotorController.set(intakeJoystick.getY());
+    MotorConstants.leftArmMotorController.set(intakeJoystick.getY());
 
     if(intakeJoystick.getRawButton(2)) {
       MotorConstants.bottomIntakeMotorController.set(5);
