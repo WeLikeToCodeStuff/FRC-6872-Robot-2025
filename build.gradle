@@ -87,11 +87,39 @@ dependencies {
 
     testCompileOnly 'org.projectlombok:lombok:1.18.36'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.36'
+
+    // Manifold plugin for cool features like operator overloading
+    implementation 'systems.manifold:manifold-ext-rt:2025.1.27'
+    annotationProcessor group: 'systems.manifold', name: 'manifold-ext', version: '2025.1.27'
+    testAnnotationProcessor group: 'systems.manifold', name: 'manifold-ext', version: '2025.1.27'
 }
 
 test{
     useJUnitPlatform()
     systemProperty 'junit.jupiter.extensions.autodetection.enabled', 'true'
+}
+
+// Manifold plugin
+if (JavaVersion.current() != JavaVersion.VERSION_1_8 &&
+        sourceSets.main.allJava.files.any {it.name == "module-info.java"}) {
+    tasks.withType(JavaCompile) {
+        // if you DO define a module-info.java file:
+        options.compilerArgs += ['-Xplugin:Manifold', '--module-path', it.classpath.asPath]
+    }
+} else {
+    tasks.withType(JavaCompile) {
+        // If you DO NOT define a module-info.java file:
+        options.compilerArgs += ['-Xplugin:Manifold']
+    }
+}
+
+tasks.compileJava {
+    classpath += files(sourceSets.main.output.resourcesDir) //adds build/resources/main to javac's classpath
+    dependsOn processResources
+}
+tasks.compileTestJava {
+    classpath += files(sourceSets.test.output.resourcesDir) //adds build/resources/test to test javac's classpath
+    dependsOn processTestResources
 }
 
 // Simulation configuration (e.g. environment variables).
