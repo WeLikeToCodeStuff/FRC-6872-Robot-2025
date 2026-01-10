@@ -7,7 +7,7 @@ import lombok.Data;
 public class Logger {
   private final String name;
 
-  public void log(LogType type, String message) {
+  public void log(Levels type, String message) {
     System.out.println("[" + type.getPrefix() + "] " + name + ": " + message);
   }
 }

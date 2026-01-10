@@ -3,7 +3,7 @@ package us.wltcs.frc.robot.core.logging;
 import lombok.Getter;
 
 @Getter()
-public enum LogType {
+public enum Levels {
   INFO("INFO"),
   WARNING("WARNING"),
   ERROR("ERROR"),
@@ -12,7 +12,7 @@ public enum LogType {
   private final String prefix;
   private final int level = ordinal();
 
-  LogType(final String prefix) {
+  Levels(final String prefix) {
     this.prefix = prefix;
   }
 }

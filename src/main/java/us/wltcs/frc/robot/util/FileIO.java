@@ -4,8 +4,8 @@ import java.io.*;
 import java.util.ArrayList;
 
 import lombok.experimental.UtilityClass;
-import us.wltcs.frc.robot.core.logging.LogType;
-import us.wltcs.frc.robot.core.logging.Logs;
+import us.wltcs.frc.robot.core.logging.Context;
+import us.wltcs.frc.robot.core.logging.Levels;
 
 @UtilityClass
 public class FileIO {
@@ -18,7 +18,7 @@ public class FileIO {
         content.add(line);
 
     } catch (IOException exception) {
-      Logs.program.log(LogType.ERROR, String.format("Failed to read %s, cause: %s", filepath, exception.getCause()));
+      Context.program.log(Levels.ERROR, String.format("Failed to read %s, cause: %s", filepath, exception.getCause()));
       return null;
     }
 
@@ -29,7 +29,7 @@ public class FileIO {
     try (BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(filepath))) {
       bufferedWriter.write(content);
     } catch(Exception exception) {
-      Logs.program.log(LogType.ERROR, String.format("Failed to write to %s\n%s", filepath, exception.getCause()));
+      Context.program.log(Levels.ERROR, String.format("Failed to write to %s\n%s", filepath, exception.getCause()));
     }
   }
 }
