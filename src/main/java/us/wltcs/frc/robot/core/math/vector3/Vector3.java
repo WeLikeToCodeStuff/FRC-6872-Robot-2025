@@ -1,7 +1,5 @@
 package us.wltcs.frc.robot.core.math.vector3;
 
-import us.wltcs.frc.robot.core.math.MathF;
-
 public interface Vector3 {
   Vector3i Left = new Vector3i(-1, 0, 0);
   Vector3i Right = new Vector3i(1, 0, 0);
@@ -29,7 +27,7 @@ public interface Vector3 {
 
   default double length() {
     double x = getX() * getX() + getY() * getY() + getZ() * getZ();
-    return x * MathF.invSqrt(x);
+    return Math.sqrt(x);
   }
 
   default Vector3d normalized() {

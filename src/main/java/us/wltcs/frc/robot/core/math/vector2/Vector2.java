@@ -22,7 +22,7 @@ public interface Vector2 {
 
   default double length() {
     double x = getX() * getX() + getY() * getY();
-    return x * MathF.invSqrt(x);
+    return Math.sqrt(x);
   }
 
   default Vector2d normalized() {

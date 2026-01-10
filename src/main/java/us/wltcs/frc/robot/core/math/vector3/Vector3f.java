@@ -31,7 +31,7 @@ public class Vector3f implements Vector3 {
 
   @Override
   public String toString() {
-    return String.format("(%.6f, %.6f)", x, y);
+    return String.format("(%.6f, %.6f, %.6f)", x, y, z);
   }
 
   @Override

@@ -31,7 +31,7 @@ public class Vector3d implements Vector3 {
 
   @Override
   public String toString() {
-    return String.format("(%.15f, %.15f)", x, y);
+    return String.format("(%.15f, %.15f, %.15f)", x, y, z);
   }
 
   @Override
