@@ -5,8 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import lombok.experimental.UtilityClass;
-import us.wltcs.frc.robot.core.logging.LogType;
-import us.wltcs.frc.robot.core.logging.Logs;
+import us.wltcs.frc.robot.core.logging.Levels;
+import us.wltcs.frc.robot.core.logging.Context;
 import us.wltcs.frc.robot.util.Json;
 
 @UtilityClass
@@ -42,7 +42,7 @@ public class Recorder {
         "Failed to save recording to '%s'\n%s", storageDirectory + fileName,
         exception.getCause()
       );
-      Logs.program.log(LogType.ERROR, message);
+//      Context.program.log(Levels.ERROR, message);
     }
   }
 }

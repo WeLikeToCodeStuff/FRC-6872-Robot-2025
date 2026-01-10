@@ -1,11 +1,15 @@
 package us.wltcs.frc.robot.core;
 
 import edu.wpi.first.wpilibj.TimedRobot;
+import us.wltcs.frc.robot.core.logging.Levels;
+import us.wltcs.frc.robot.core.logging.Context;
 
 // Robot class defining all the behaviour and actions of the robot
 // Learn more about the TimedRobot class here:
 // https://austinshalit.github.io/allwpilib/allwpilib/docs/release/java/edu/wpi/first/wpilibj/TimedRobot.html
 public class Robot extends TimedRobot {
+
+
   @Override
   public void robotInit() {
 
@@ -45,6 +49,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void testInit() {
+
   }
 
   @Override

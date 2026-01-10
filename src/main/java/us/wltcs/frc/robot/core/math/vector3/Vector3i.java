@@ -31,7 +31,7 @@ public class Vector3i implements Vector3 {
 
   @Override
   public String toString() {
-    return String.format("(%d, %d)", x, y);
+    return String.format("(%d, %d, %d)", x, y, z);
   }
 
   @Override
