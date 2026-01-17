@@ -5,8 +5,12 @@ import us.wltcs.frc.core.api.event.EventBus;
 import us.wltcs.frc.core.api.event.EventListener;
 import us.wltcs.frc.core.api.event.EventTarget;
 import us.wltcs.frc.core.api.event.EventType;
-import us.wltcs.frc.core.impl.events.RobotStartEvent;
+import us.wltcs.frc.core.math.vector2.Vector2d;
+import us.wltcs.frc.robot.events.RobotStart;
 import us.wltcs.frc.core.statemachine.StateMachine;
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.CvSink;
+import edu.wpi.first.cscore.CvSource;
 
 // Robot class defining all the behaviour and actions of the robot
 // Learn more about the TimedRobot class here:
@@ -14,12 +18,20 @@ import us.wltcs.frc.core.statemachine.StateMachine;
 public class Robot extends TimedRobot {
   private final EventBus eventBus = new EventBus();
   private final StateMachine stateMachine = new StateMachine();
+  private Vector2d direction;
 
   @Override
   public void robotInit() {
     eventBus.subscribe(this);
-    eventBus.post(new RobotStartEvent(EventType.PRE));
-    eventBus.post(new RobotStartEvent(EventType.POST));
+    eventBus.post(new RobotStart(EventType.PRE));
+    eventBus.post(new RobotStart(EventType.POST));
+
+    CameraServer.startAutomaticCapture();
+// Creates the CvSink and connects it to the UsbCamera
+    CvSink cvSink = CameraServer.getVideo();
+    // Creates the CvSource and MjpegServer [2] and connects them
+    CvSource outputStream = CameraServer.putVideo("Blur", 640, 480);
+
   }
 
   @Override
@@ -73,7 +85,7 @@ public class Robot extends TimedRobot {
   }
 
   @EventTarget
-  public final EventListener<RobotStartEvent> robotStartEventListener = event -> {
+  public final EventListener<RobotStart> robotStartEventListener = event -> {
 
   };
 }

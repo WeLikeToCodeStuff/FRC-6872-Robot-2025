@@ -6,5 +6,5 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public abstract class Event {
-    private final EventType eventType;
+  private final EventType eventType;
 }
