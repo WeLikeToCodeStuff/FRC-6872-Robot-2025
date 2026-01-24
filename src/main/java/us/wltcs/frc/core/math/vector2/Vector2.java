@@ -25,6 +25,6 @@ public interface Vector2 {
 
   default Vector2d normalized() {
     Vector2d vector = new Vector2d(getX(), getY());
-    return vector / length();
+    return vector.div(length());
   }
 }

@@ -1,10 +1,8 @@
-package us.wltcs.frc.core.input;
+package us.wltcs.frc.core.devices;
 
 import java.util.Map;
 import us.wltcs.frc.core.logging.Context;
-import us.wltcs.frc.core.math.vector2.Vector2d;
 
-//
 public class Joystick {
   private Map<Integer, Boolean> buttons;
   private final edu.wpi.first.wpilibj.Joystick joystick;
