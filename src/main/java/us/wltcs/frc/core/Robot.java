@@ -1,15 +1,12 @@
-package us.wltcs.frc.robot;
+package us.wltcs.frc.core;
 
 import edu.wpi.first.wpilibj.TimedRobot;
-import us.wltcs.frc.core.api.event.EventBus;
-import us.wltcs.frc.core.api.event.EventListener;
-import us.wltcs.frc.core.api.event.EventTarget;
-import us.wltcs.frc.core.api.event.EventType;
+import us.wltcs.frc.core.api.event.*;
 import us.wltcs.frc.core.devices.Camera;
+import us.wltcs.frc.core.devices.Joystick;
+import us.wltcs.frc.robot.events.RobotPeriodic;
 import us.wltcs.frc.robot.events.RobotStart;
 import us.wltcs.frc.core.statemachine.StateMachine;
-import edu.wpi.first.cscore.CvSink;
-import edu.wpi.first.cscore.CvSource;
 
 // Robot class defining all the behaviour and actions of the robot
 // Learn more about the TimedRobot class here:
@@ -18,17 +15,20 @@ public class Robot extends TimedRobot {
   private final EventBus eventBus = new EventBus();
   private final StateMachine stateMachine = new StateMachine();
   private final Camera camera = new Camera("Main", 1920, 1080);
+  private final Joystick joystick = new Joystick(0);
 
   @Override
   public void robotInit() {
     eventBus.subscribe(this);
     eventBus.post(new RobotStart(EventType.PRE));
     eventBus.post(new RobotStart(EventType.POST));
+
   }
 
   @Override
   public void robotPeriodic() {
     stateMachine.update();
+    System.out.println(joystick.getDirection().toString());
   }
 
   @Override

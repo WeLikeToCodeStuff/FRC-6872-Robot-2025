@@ -1,8 +1,9 @@
 package us.wltcs.frc.core.devices;
-
 import java.util.Map;
 import us.wltcs.frc.core.logging.Context;
+import us.wltcs.frc.core.math.vector3.Vector3d;
 
+// Class for the Logitech extreme 3d pro joystick
 public class Joystick {
   private Map<Integer, Boolean> buttons;
   private final edu.wpi.first.wpilibj.Joystick joystick;
@@ -16,6 +17,10 @@ public class Joystick {
         Context.movement.logError("Invalid button ID %s", i);
       }
     }
+  }
+
+  public Vector3d getDirection() {
+    return new Vector3d(joystick.getRawAxis(0), joystick.getRawAxis(1), joystick.getRawAxis(2));
   }
 
   public boolean buttonPressed(int button) {
