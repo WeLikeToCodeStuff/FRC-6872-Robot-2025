@@ -1,12 +1,15 @@
 package us.wltcs.frc.core;
-
 import edu.wpi.first.wpilibj.TimedRobot;
+import lombok.Getter;
 import us.wltcs.frc.core.api.event.*;
-import us.wltcs.frc.core.devices.Camera;
-import us.wltcs.frc.core.devices.Joystick;
-import us.wltcs.frc.robot.events.RobotPeriodic;
+import us.wltcs.frc.core.devices.output.Camera;
+import us.wltcs.frc.core.devices.input.Joystick;
+import us.wltcs.frc.robot.Motors;
 import us.wltcs.frc.robot.events.RobotStart;
 import us.wltcs.frc.core.statemachine.StateMachine;
+import us.wltcs.frc.robot.states.Driving;
+import us.wltcs.frc.robot.states.Idle;
+import java.util.Timer;
 
 // Robot class defining all the behaviour and actions of the robot
 // Learn more about the TimedRobot class here:
@@ -14,7 +17,11 @@ import us.wltcs.frc.core.statemachine.StateMachine;
 public class Robot extends TimedRobot {
   private final EventBus eventBus = new EventBus();
   private final StateMachine stateMachine = new StateMachine();
+
+  @Getter
   private final Camera camera = new Camera("Main", 1920, 1080);
+
+  @Getter
   private final Joystick joystick = new Joystick(0);
 
   @Override
@@ -22,13 +29,17 @@ public class Robot extends TimedRobot {
     eventBus.subscribe(this);
     eventBus.post(new RobotStart(EventType.PRE));
     eventBus.post(new RobotStart(EventType.POST));
-
   }
 
   @Override
   public void robotPeriodic() {
+    if (joystick.getDirection().length() != 0) {
+      stateMachine.switchState(new Driving());
+    } else {
+      stateMachine.switchState(new Idle());
+    }
+
     stateMachine.update();
-    System.out.println(joystick.getDirection().toString());
   }
 
   @Override

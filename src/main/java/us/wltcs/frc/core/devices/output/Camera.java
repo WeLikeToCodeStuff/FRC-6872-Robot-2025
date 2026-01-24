@@ -1,4 +1,4 @@
-package us.wltcs.frc.core.devices;
+package us.wltcs.frc.core.devices.output;
 
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.CvSink;

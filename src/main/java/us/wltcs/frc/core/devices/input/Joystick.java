@@ -1,7 +1,7 @@
-package us.wltcs.frc.core.devices;
+package us.wltcs.frc.core.devices.input;
 import java.util.Map;
 import us.wltcs.frc.core.logging.Context;
-import us.wltcs.frc.core.math.vector3.Vector3d;
+import us.wltcs.frc.core.math.vector2.Vector2d;
 
 // Class for the Logitech extreme 3d pro joystick
 public class Joystick {
@@ -19,8 +19,16 @@ public class Joystick {
     }
   }
 
-  public Vector3d getDirection() {
-    return new Vector3d(joystick.getRawAxis(0), joystick.getRawAxis(1), joystick.getRawAxis(2));
+  public Vector2d getDirection() {
+    Vector2d vector = new Vector2d(joystick.getRawAxis(0), joystick.getRawAxis(1));
+    if (vector.length() >= 0.1)
+      return vector.normalized();
+
+    return new Vector2d(0, 0);
+  }
+
+  public double getSlider() {
+    return joystick.getThrottle();
   }
 
   public boolean buttonPressed(int button) {

@@ -1,12 +1,6 @@
 package us.wltcs.frc.core.math.vector2;
 
 public interface Vector2 {
-  Vector2i Left = new Vector2i(-1, 0);
-  Vector2i Right = new Vector2i(1, 0);
-  Vector2i Up = new Vector2i(0, 1);
-  Vector2i Down = new Vector2i(0, -1);
-  Vector2i Zero = new Vector2i(0, 0);
-
   double getX();
 
   double getY();
@@ -20,6 +14,10 @@ public interface Vector2 {
 
   default double length() {
     double x = getX() * getX() + getY() * getY();
+
+    if (x < 0)
+      return 0;
+
     return Math.sqrt(x);
   }
 
