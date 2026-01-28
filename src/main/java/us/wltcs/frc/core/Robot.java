@@ -2,6 +2,7 @@ package us.wltcs.frc.core;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import lombok.Getter;
@@ -16,6 +17,8 @@ import us.wltcs.frc.robot.events.RobotStart;
 import us.wltcs.frc.core.statemachine.StateMachine;
 import us.wltcs.frc.robot.states.Driving;
 import us.wltcs.frc.robot.states.Idle;
+
+import java.util.Map;
 import java.util.Timer;
 
 // Robot class defining all the behaviour and actions of the robot
@@ -52,8 +55,8 @@ public class Robot extends TimedRobot {
     stateMachine.update(swerveDriveKinematics);
 
 //  Dashboard
-    SmartDashboard.putNumber("Battery Voltage", RobotController.getBatteryVoltage());
-    SmartDashboard.putNumber("Swerve Angle", swerveDriveKinematics.getModules()[0].getAngle().getDegrees());
+    Shuffleboard.getTab("SmartDashboard").add("Battery Voltage", RobotController.getBatteryVoltage()).withWidget(BuiltInWidgets.kVoltageView).withProperties(Map.of("min", 0, "max", 14)).getEntry();
+    Shuffleboard.getTab("SmartDashboard").add("Swerve Angle", swerveDriveKinematics.getModules()[0].getAngle().getDegrees()).withWidget(BuiltInWidgets.kGyro).getEntry();
   }
 
   @Override
