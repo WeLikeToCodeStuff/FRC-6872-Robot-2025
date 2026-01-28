@@ -1,5 +1,6 @@
 package us.wltcs.frc.core;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
@@ -46,8 +47,9 @@ public class Robot extends TimedRobot {
 
     //  Dashboard
     dashboard.initialize();
-    dashboard.addEntry(Shuffleboard.getTab("Robot").add("Battery Voltage", RobotController.getBatteryVoltage()).withWidget(BuiltInWidgets.kVoltageView).withProperties(Map.of("min", 0, "max", 14)).getEntry());
-    dashboard.addEntry(Shuffleboard.getTab("Robot").add("Swerve Angle", swerveDriveKinematics.getModules()[0].getAngle().getDegrees()).withWidget(BuiltInWidgets.kGyro).getEntry());
+    dashboard.addEntry(Shuffleboard.getTab("Robot").add("Battery Voltage", RobotController.getBatteryVoltage()).withWidget(BuiltInWidgets.kVoltageView).withProperties(Map.of("min", 0, "max", 14)).getEntry(), RobotController::getBatteryVoltage);
+    dashboard.addEntry(Shuffleboard.getTab("Robot").add("Swerve Angle", swerveDriveKinematics.getModules()[0].getAngle().getDegrees()).withWidget(BuiltInWidgets.kGyro).getEntry(), () -> swerveDriveKinematics.getModules()[0].getAngle().getDegrees());
+//    dashboard.addEntry();
   }
 
   @Override
