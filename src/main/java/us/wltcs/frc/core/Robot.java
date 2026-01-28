@@ -12,6 +12,7 @@ import us.wltcs.frc.core.devices.input.Joystick;
 import us.wltcs.frc.core.logging.Context;
 import us.wltcs.frc.core.logging.Levels;
 import us.wltcs.frc.core.logging.Logger;
+import us.wltcs.frc.core.ui.Dashboard;
 import us.wltcs.frc.robot.Motors;
 import us.wltcs.frc.robot.events.RobotStart;
 import us.wltcs.frc.core.statemachine.StateMachine;
@@ -34,6 +35,7 @@ public class Robot extends TimedRobot {
 
   @Getter
   private final Joystick joystick = new Joystick(0);
+  private final Dashboard dashboard = new Dashboard();
 
   @Override
   public void robotInit() {
@@ -42,6 +44,10 @@ public class Robot extends TimedRobot {
     eventBus.post(new RobotStart(EventType.PRE));
     eventBus.post(new RobotStart(EventType.POST));
 
+    //  Dashboard
+    dashboard.initialize();
+    dashboard.addEntry(Shuffleboard.getTab("Robot").add("Battery Voltage", RobotController.getBatteryVoltage()).withWidget(BuiltInWidgets.kVoltageView).withProperties(Map.of("min", 0, "max", 14)).getEntry());
+    dashboard.addEntry(Shuffleboard.getTab("Robot").add("Swerve Angle", swerveDriveKinematics.getModules()[0].getAngle().getDegrees()).withWidget(BuiltInWidgets.kGyro).getEntry());
   }
 
   @Override
@@ -54,9 +60,9 @@ public class Robot extends TimedRobot {
 
     stateMachine.update(swerveDriveKinematics);
 
-//  Dashboard
-    Shuffleboard.getTab("SmartDashboard").add("Battery Voltage", RobotController.getBatteryVoltage()).withWidget(BuiltInWidgets.kVoltageView).withProperties(Map.of("min", 0, "max", 14)).getEntry();
-    Shuffleboard.getTab("SmartDashboard").add("Swerve Angle", swerveDriveKinematics.getModules()[0].getAngle().getDegrees()).withWidget(BuiltInWidgets.kGyro).getEntry();
+    dashboard.getEntries().forEach((name, entry) -> {
+      Context.program.log(Levels.DEBUG, String.format("%s -> %s", name, entry.get().getValue().toString()));
+    });
   }
 
   @Override
