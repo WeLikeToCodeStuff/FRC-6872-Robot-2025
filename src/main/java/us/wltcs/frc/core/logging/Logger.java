@@ -24,7 +24,7 @@ public class Logger {
   public void log(Levels type, String format, Object... args) {
     Style logStyle = type.getStyle();
     Calendar calendar = Calendar.getInstance();
-    String formatted = setTextColor(logStyle.getMessageColor(), logStyle.getMessageBrightness(), String.format(format, args)) + "\n";
+    String formatted = setTextColor(logStyle.getMessageColor(), logStyle.getMessageBrightness(), String.format(format, args));
     String time = String.format("%d:%d:%d", calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), calendar.get(Calendar.SECOND));
     String log = setTextColor(logStyle.getLogColor(), logStyle.getLogBrightness(), String.format("[%s] [%s] [%s] ", time, type.getPrefix(), name));
     System.out.println(log + formatted);

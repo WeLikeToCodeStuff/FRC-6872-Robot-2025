@@ -1,9 +1,13 @@
 package us.wltcs.frc.core;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.wpilibj.TimedRobot;
 import lombok.Getter;
 import us.wltcs.frc.core.api.event.*;
 import us.wltcs.frc.core.devices.output.Camera;
 import us.wltcs.frc.core.devices.input.Joystick;
+import us.wltcs.frc.core.logging.Context;
+import us.wltcs.frc.core.logging.Levels;
+import us.wltcs.frc.core.logging.Logger;
 import us.wltcs.frc.robot.Motors;
 import us.wltcs.frc.robot.events.RobotStart;
 import us.wltcs.frc.core.statemachine.StateMachine;
@@ -17,15 +21,17 @@ import java.util.Timer;
 public class Robot extends TimedRobot {
   private final EventBus eventBus = new EventBus();
   private final StateMachine stateMachine = new StateMachine();
+  private final SwerveDriveKinematics swerveDriveKinematics = new SwerveDriveKinematics(Motors.m_frontLeftLocation, Motors.m_frontRightLocation, Motors.m_backLeftLocation, Motors.m_backRightLocation);
 
   @Getter
   private final Camera camera = new Camera("Main", 1920, 1080);
 
   @Getter
-  private final Joystick joystick = new Joystick(0);
+  private final Joystick joystick = new Joystick(1);
 
   @Override
   public void robotInit() {
+    Context.program.log(Levels.INFO, String.format("Configured %s as primary controller", joystick.getJoystick().getName()));
     eventBus.subscribe(this);
     eventBus.post(new RobotStart(EventType.PRE));
     eventBus.post(new RobotStart(EventType.POST));
@@ -34,12 +40,12 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
     if (joystick.getDirection().length() != 0) {
-      stateMachine.switchState(new Driving());
+      stateMachine.switchState(new Driving(joystick));
     } else {
       stateMachine.switchState(new Idle());
     }
 
-    stateMachine.update();
+    stateMachine.update(swerveDriveKinematics);
   }
 
   @Override
