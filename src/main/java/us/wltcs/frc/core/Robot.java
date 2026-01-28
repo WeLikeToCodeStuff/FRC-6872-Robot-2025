@@ -49,7 +49,7 @@ public class Robot extends TimedRobot {
     dashboard.initialize();
     dashboard.addEntry(Shuffleboard.getTab("Robot").add("Battery Voltage", RobotController.getBatteryVoltage()).withWidget(BuiltInWidgets.kVoltageView).withProperties(Map.of("min", 0, "max", 14)).getEntry(), RobotController::getBatteryVoltage);
     dashboard.addEntry(Shuffleboard.getTab("Robot").add("Swerve Angle", swerveDriveKinematics.getModules()[0].getAngle().getDegrees()).withWidget(BuiltInWidgets.kGyro).getEntry(), () -> swerveDriveKinematics.getModules()[0].getAngle().getDegrees());
-    dashboard.addEntry(Shuffleboard.getTab("Robot").add("Joystick XY", joystick.getDirection()).getEntry(), joystick::getDirection);
+    dashboard.addEntry(Shuffleboard.getTab("Robot").add("Joystick XY", joystick.getDirection().getX()).getEntry(), () -> joystick.getDirection().getX());
   }
 
   @Override
