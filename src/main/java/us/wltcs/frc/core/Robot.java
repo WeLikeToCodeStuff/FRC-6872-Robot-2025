@@ -1,6 +1,9 @@
 package us.wltcs.frc.core;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import lombok.Getter;
 import us.wltcs.frc.core.api.event.*;
 import us.wltcs.frc.core.devices.output.Camera;
@@ -35,6 +38,7 @@ public class Robot extends TimedRobot {
     eventBus.subscribe(this);
     eventBus.post(new RobotStart(EventType.PRE));
     eventBus.post(new RobotStart(EventType.POST));
+
   }
 
   @Override
@@ -46,6 +50,10 @@ public class Robot extends TimedRobot {
     }
 
     stateMachine.update(swerveDriveKinematics);
+
+//  Dashboard
+    SmartDashboard.putNumber("Battery Voltage", RobotController.getBatteryVoltage());
+    SmartDashboard.putNumber("Swerve Angle", swerveDriveKinematics.getModules()[0].getAngle().getDegrees());
   }
 
   @Override
