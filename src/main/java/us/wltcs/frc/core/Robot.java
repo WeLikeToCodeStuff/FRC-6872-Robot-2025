@@ -49,7 +49,7 @@ public class Robot extends TimedRobot {
     dashboard.initialize();
     dashboard.addEntry(Shuffleboard.getTab("Robot").add("Battery Voltage", RobotController.getBatteryVoltage()).withWidget(BuiltInWidgets.kVoltageView).withProperties(Map.of("min", 0, "max", 14)).getEntry(), RobotController::getBatteryVoltage);
     dashboard.addEntry(Shuffleboard.getTab("Robot").add("Swerve Angle", swerveDriveKinematics.getModules()[0].getAngle().getDegrees()).withWidget(BuiltInWidgets.kGyro).getEntry(), () -> swerveDriveKinematics.getModules()[0].getAngle().getDegrees());
-//    dashboard.addEntry();
+    dashboard.addEntry(Shuffleboard.getTab("Robot").add("Joystick XY", joystick.getDirection()).getEntry(), joystick::getDirection);
   }
 
   @Override
@@ -62,8 +62,8 @@ public class Robot extends TimedRobot {
 
     stateMachine.update(swerveDriveKinematics);
 
-    dashboard.getEntries().forEach((name, entry) -> {
-      Context.program.log(Levels.DEBUG, String.format("%s -> %s", name, entry.get().getValue().toString()));
+    dashboard.getUpdateMap().forEach((key, runnable) -> {
+      dashboard.getEntries().get(key).setValue(runnable);
     });
   }
 
