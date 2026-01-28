@@ -27,7 +27,7 @@ public class Robot extends TimedRobot {
   private final Camera camera = new Camera("Main", 1920, 1080);
 
   @Getter
-  private final Joystick joystick = new Joystick(1);
+  private final Joystick joystick = new Joystick(0);
 
   @Override
   public void robotInit() {
