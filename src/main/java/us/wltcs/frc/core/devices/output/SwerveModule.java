@@ -1,7 +1,8 @@
 package us.wltcs.frc.core.devices.output;
 
 import edu.wpi.first.math.controller.PIDController;
-//import com.revrobotics.CANEncoder;
+import com.revrobotics.AbsoluteEncoder;
+//import com.revrobotics.
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.motorcontrol.MotorController;
@@ -12,6 +13,7 @@ public class SwerveModule {
   private final MotorController turningMotor;
   private final PIDController drivePIDController;
   private final PIDController turnPIDController;
+
 //  private final AnalogInput absoluteEncoder;
 //  private final CANEncoder driveEncoder;
 //  private final
