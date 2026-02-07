@@ -1,7 +1,6 @@
 package us.wltcs.frc.core.statemachine;
 
 import lombok.Getter;
-import us.wltcs.frc.core.Robot;
 import us.wltcs.frc.robot.states.Idle;
 
 public class StateMachine {
