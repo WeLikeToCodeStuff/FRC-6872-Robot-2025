@@ -36,7 +36,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotInit() {
-    Context.program.log(Levels.INFO, String.format("Configured %s as primary controller", joystick.getJoystick().getName()));
+//    Context.program.log(Levels.INFO, String.format("Configured %s as primary controller", joystick.getJoystick().getName()));
     eventBus.subscribe(this);
     eventBus.post(new RobotStart(EventType.PRE));
     eventBus.post(new RobotStart(EventType.POST));

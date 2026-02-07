@@ -1,6 +1,5 @@
 package us.wltcs.frc.core;
 
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import us.wltcs.frc.core.devices.output.SwerveModule;
 

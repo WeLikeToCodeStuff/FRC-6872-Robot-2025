@@ -1,11 +1,15 @@
+
 plugins {
     id "java"
     id "edu.wpi.first.GradleRIO" version "2026.2.1"
+    id "idea"
 }
 
+def javaVersion = JavaVersion.VERSION_17
+
 java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = javaVersion
+    targetCompatibility = javaVersion
 }
 
 def ROBOT_MAIN_CLASS = "us.wltcs.frc.Main"
@@ -34,7 +38,7 @@ deploy {
                     files = project.fileTree('src/main/deploy')
                     directory = '/home/lvuser/deploy'
                     deleteOldFiles = false // Change to true to delete files on roboRIO that no
-                                           // longer exist in deploy directory of this project
+                    // longer exist in deploy directory of this project
                 }
             }
         }
@@ -43,15 +47,13 @@ deploy {
 
 def deployArtifact = deploy.targets.roborio.artifacts.frcJava
 
-// Set to true to use debug for all targets including JNI, which will drastically impact
-// performance.
+// Set to true to use debug for JNI.
 wpi.java.debugJni = false
 
 // Set this to true to enable desktop support.
+//noinspection GroovyUnusedAssignment
 def includeDesktopSupport = false
 
-// Defining my dependencies. In this case, WPILib (+ friends), and vendor libraries.
-// Also defines JUnit 5.
 dependencies {
     annotationProcessor wpi.java.deps.wpilibAnnotations()
     implementation wpi.java.deps.wpilib()
@@ -71,13 +73,34 @@ dependencies {
     nativeRelease wpi.java.vendor.jniRelease(wpi.platforms.desktop)
     simulationRelease wpi.sim.enableRelease()
 
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.1'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    testImplementation platform("org.junit:junit-bom:5.11.4")
+    testImplementation "org.junit.jupiter:junit-jupiter-api"
+    testImplementation "org.junit.jupiter:junit-jupiter-params"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
+
+    // Google GSON for serializing automated moves
+    implementation 'com.google.code.gson:gson:2.12.0'
+
+    compileOnly 'org.projectlombok:lombok:1.18.36'
+    annotationProcessor 'org.projectlombok:lombok:1.18.36'
+
+    testCompileOnly 'org.projectlombok:lombok:1.18.36'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.36'
 }
 
-test {
+test{
     useJUnitPlatform()
     systemProperty 'junit.jupiter.extensions.autodetection.enabled', 'true'
+}
+
+tasks.compileJava {
+    classpath += files(sourceSets.main.output.resourcesDir) //adds build/resources/main to javac's classpath
+    dependsOn processResources
+}
+tasks.compileTestJava {
+    classpath += files(sourceSets.test.output.resourcesDir) //adds build/resources/test to test javac's classpath
+    dependsOn processTestResources
 }
 
 // Simulation configuration (e.g. environment variables).
@@ -89,9 +112,7 @@ wpi.sim.addDriverstation()
 // knows where to look for our Robot Class.
 jar {
     from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
-    from('src') { into 'backup/src' }
-    from('vendordeps') { into 'backup/vendordeps' }
-    from('build.gradle') { into 'backup' }
+    from sourceSets.main.allSource
     manifest edu.wpi.first.gradlerio.GradleRIOPlugin.javaManifest(ROBOT_MAIN_CLASS)
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
@@ -101,7 +122,23 @@ deployArtifact.jarTask = jar
 wpi.java.configureExecutableTasks(jar)
 wpi.java.configureTestTasks(test)
 
-// Configure string concat to always inline compile
 tasks.withType(JavaCompile) {
+    // Configure string concat to always inline compile
     options.compilerArgs.add '-XDstringConcat=inline'
+}
+
+
+idea {
+    project {
+        // The project.sourceCompatibility setting is not always picked up, so we set explicitly
+        languageLevel = javaVersion
+    }
+    module {
+        // Improve development & (especially) debugging experience (and IDEA's capabilities) by having libraries' source & javadoc attached
+        downloadJavadoc = true
+        downloadSources = true
+        // Exclude the following from indexing and search
+        excludeDirs+=file(".run" )
+        excludeDirs+=file(".vscode" )
+    }
 }
