@@ -13,7 +13,7 @@ public class Json {
     FileIO.writeTextFile(filepath, gson.toJson(data));
   }
 
-  public <T> String read(T type, String filepath) {
+  public <T> T read(T type, String filepath) {
     return gson.fromJson(FileIO.readTextFile(filepath), (Type)type);
   }
 }
