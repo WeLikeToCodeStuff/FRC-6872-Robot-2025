@@ -1,43 +1,28 @@
 package us.wltcs.frc.core.devices.output;
 
-import edu.wpi.first.math.controller.PIDController;
+import com.revrobotics.spark.SparkMax;
 import com.revrobotics.AbsoluteEncoder;
-//import com.revrobotics.
-import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.wpilibj.AnalogInput;
-import edu.wpi.first.wpilibj.motorcontrol.MotorController;
+import com.revrobotics.RelativeEncoder;
 
+// Swerves uses kinematics to control the wheels.
+// https://dev.to/suleyman_sade/understanding-and-coding-a-swerve-module-in-frc-342m
 // To simplify calculations, all rotations are calculated using radians
 public class SwerveModule {
-  private final MotorController motorController;
-  private final MotorController turningMotor;
-  private final PIDController drivePIDController;
-  private final PIDController turnPIDController;
+  private final SparkMax driveMotor;
+  private final SparkMax turnMotor;
 
-//  private final AnalogInput absoluteEncoder;
-//  private final CANEncoder driveEncoder;
-//  private final
+  private final RelativeEncoder driveEncoder;
+  private final AbsoluteEncoder turnEncoder;
 
-//  private final double motorRotationOffset;
-//  private final double driveMotorGain;
+  public SwerveModule(SparkMax driveMotor, SparkMax turnMotor) {
+    this.driveMotor = driveMotor;
+    this.turnMotor = turnMotor;
 
-  public SwerveModule(
-    MotorController driveMotor,
-    MotorController turningMotor,
-    AnalogInput turningEncoder,
-    PIDController drivePIDController,
-    PIDController turnPIDController,
-    double motorRotationOffset,
-    double driveMotorGain
-  ) {
-    this.motorController = driveMotor;
-    this.turningMotor = turningMotor;
-    this.turnPIDController = turnPIDController;
-    this.drivePIDController = drivePIDController;
-//    this.motorRotationOffset = motorRotationOffset;
-//    this.driveMotorGain = driveMotorGain;
-//    this.turningEncoder = turningEncoder;
+    this.driveEncoder = driveMotor.getEncoder();
+    this.turnEncoder = turnMotor.getAbsoluteEncoder();
+  }
 
-    this.turnPIDController.enableContinuousInput(-Math.PI, Math.PI);
+  public void resetEncoders() {
+    driveEncoder.setPosition(0);
   }
 }

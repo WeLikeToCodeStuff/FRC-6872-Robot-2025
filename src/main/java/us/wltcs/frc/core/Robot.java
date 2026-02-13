@@ -5,14 +5,9 @@ import lombok.Getter;
 import us.wltcs.frc.core.api.event.*;
 import us.wltcs.frc.core.devices.output.Camera;
 import us.wltcs.frc.core.devices.input.Joystick;
-import us.wltcs.frc.core.logging.Context;
-import us.wltcs.frc.core.logging.Levels;
 import us.wltcs.frc.core.ui.Dashboard;
-import us.wltcs.frc.robot.Motors;
 import us.wltcs.frc.robot.events.RobotStart;
 import us.wltcs.frc.core.statemachine.StateMachine;
-import us.wltcs.frc.robot.states.Driving;
-import us.wltcs.frc.robot.states.Idle;
 
 // Robot class defining all the behaviour and actions of the robot
 // Learn more about the TimedRobot class here:
