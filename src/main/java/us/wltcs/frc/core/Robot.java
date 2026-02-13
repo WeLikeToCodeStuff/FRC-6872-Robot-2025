@@ -1,5 +1,6 @@
 package us.wltcs.frc.core;
 
+import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.TimedRobot;
 import lombok.Getter;
 import us.wltcs.frc.core.api.event.*;
@@ -33,6 +34,7 @@ public class Robot extends TimedRobot {
   @Getter
   private final Joystick joystick = new Joystick(0);
   private final Dashboard dashboard = new Dashboard();
+  private final ADXRS450_Gyro gyroscope = new ADXRS450_Gyro();
 
   @Override
   public void robotInit() {
@@ -51,6 +53,7 @@ public class Robot extends TimedRobot {
 //    }
 
     stateMachine.update();
+    System.out.println(gyroscope.getAngle());
   }
 
   @Override
