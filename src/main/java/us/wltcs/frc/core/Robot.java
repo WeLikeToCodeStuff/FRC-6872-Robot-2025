@@ -1,9 +1,12 @@
 package us.wltcs.frc.core;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.TimedRobot;
 import lombok.Getter;
 import us.wltcs.frc.core.api.event.*;
+import us.wltcs.frc.core.autonomous.RecordingManager;
 import us.wltcs.frc.core.devices.output.Camera;
 import us.wltcs.frc.core.devices.input.Joystick;
 import us.wltcs.frc.core.ui.Dashboard;
@@ -14,8 +17,10 @@ import us.wltcs.frc.core.statemachine.StateMachine;
 // Learn more about the TimedRobot class here:
 // https://austinshalit.github.io/allwpilib/allwpilib/docs/release/java/edu/wpi/first/wpilibj/TimedRobot.html
 public class Robot extends TimedRobot {
+  public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
   private final EventBus eventBus = new EventBus();
   private final StateMachine stateMachine = new StateMachine();
+  private final RecordingManager recordingManager = new RecordingManager();
 //  private final SwerveDriver swerveDriver = new SwerveDriver(
 //    Motors.frontLeftMotorController,
 //    Motors.frontRightMotorController,
@@ -37,6 +42,9 @@ public class Robot extends TimedRobot {
     eventBus.subscribe(this);
     eventBus.post(new RobotStart(EventType.PRE));
     eventBus.post(new RobotStart(EventType.POST));
+
+    // Recordings initialization
+    recordingManager.loadRecordings();
   }
 
   @Override
