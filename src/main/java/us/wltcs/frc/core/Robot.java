@@ -1,10 +1,8 @@
 package us.wltcs.frc.core;
 
-import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.TimedRobot;
 import lombok.Getter;
 import us.wltcs.frc.core.api.event.*;
-import us.wltcs.frc.core.devices.input.Gyroscope;
 import us.wltcs.frc.core.devices.output.Camera;
 import us.wltcs.frc.core.devices.input.Joystick;
 import us.wltcs.frc.core.ui.Dashboard;
