@@ -11,11 +11,11 @@ public class Gyroscope {
     this.gyro = new ADXRS450_Gyro();
   }
 
-  double getDegrees() {
+  public double getDegrees() {
     return gyro.getAngle();
   }
 
-  double getRadians() {
+  public double getRadians() {
     return Math.toRadians(gyro.getAngle());
   }
 }

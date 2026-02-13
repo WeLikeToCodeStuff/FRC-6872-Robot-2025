@@ -4,9 +4,11 @@ import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.TimedRobot;
 import lombok.Getter;
 import us.wltcs.frc.core.api.event.*;
+import us.wltcs.frc.core.devices.input.Gyroscope;
 import us.wltcs.frc.core.devices.output.Camera;
 import us.wltcs.frc.core.devices.input.Joystick;
 import us.wltcs.frc.core.ui.Dashboard;
+import us.wltcs.frc.robot.SwerveModules;
 import us.wltcs.frc.robot.events.RobotStart;
 import us.wltcs.frc.core.statemachine.StateMachine;
 
@@ -16,12 +18,12 @@ import us.wltcs.frc.core.statemachine.StateMachine;
 public class Robot extends TimedRobot {
   private final EventBus eventBus = new EventBus();
   private final StateMachine stateMachine = new StateMachine();
-//  private final SwerveDriver swerveDriver = new SwerveDriver(
-//    Motors.frontLeftMotorController,
-//    Motors.frontRightMotorController,
-//    Motors.rearLeftMotorController,
-//    Motors.rearRightMotorController
-//  );
+  private final SwerveDriver swerveDriver = new SwerveDriver(
+    SwerveModules.frontLeftMotorController,
+    SwerveModules.frontRightMotorController,
+    SwerveModules.rearLeftMotorController,
+    SwerveModules.rearRightMotorController
+  );
 
   @Getter
   private final Camera camera = new Camera("Main", 1920, 1080);
@@ -29,7 +31,6 @@ public class Robot extends TimedRobot {
   @Getter
   private final Joystick joystick = new Joystick(0);
   private final Dashboard dashboard = new Dashboard();
-  private final ADXRS450_Gyro gyroscope = new ADXRS450_Gyro();
 
   @Override
   public void robotInit() {
@@ -48,7 +49,6 @@ public class Robot extends TimedRobot {
 //    }
 
     stateMachine.update();
-    System.out.println(gyroscope.getAngle());
   }
 
   @Override
@@ -68,6 +68,10 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
+    if (joystick.getDirection().length() != 0) {
+      swerveDriver.drive(joystick.getDirection().x, getJoystick().getDirection().y, joystick.getSlider(), true);
+    }
+
     stateMachine.update();
   }
 
