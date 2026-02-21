@@ -6,6 +6,7 @@ import com.revrobotics.spark.SparkLowLevel;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.RelativeEncoder;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import us.wltcs.frc.core.math.vector2.Vector2d;
@@ -22,6 +23,8 @@ public class SwerveModule {
   private final RelativeEncoder driveEncoder;
   private final AbsoluteEncoder turnEncoder;
 
+  private final PIDController turningPidController;
+
   private final SparkClosedLoopController drivingController;
   private final SparkClosedLoopController turningController;
 
@@ -35,6 +38,9 @@ public class SwerveModule {
     this.driveMotor = new SparkMax(driveMotorControllerId, SparkLowLevel.MotorType.kBrushless);
     this.turnMotor = new SparkMax(turnMotorControllerId, SparkLowLevel.MotorType.kBrushless);
 
+    turningPidController = new PIDController(0.5, 0, 0);
+    turningPidController.enableContinuousInput(-Math.PI, Math.PI);
+
     this.driveEncoder = driveMotor.getEncoder();
     this.turnEncoder = turnMotor.getAbsoluteEncoder();
 
@@ -44,19 +50,36 @@ public class SwerveModule {
     driveEncoder.setPosition(0);
   }
 
+  public double getDriveVelocity() {
+    return driveEncoder.getVelocity();
+  }
+
+  public double getTurnVelocity() {
+    return turnEncoder.getVelocity();
+  }
+
+  public double getTurningPosition() {
+    return turnEncoder.getPosition();
+  }
+
+  public SwerveModuleState getState() {
+    return new SwerveModuleState(getDriveVelocity(), new Rotation2d(getTurningPosition()));
+  }
+
   private static final double kMaxSpeedMetersPerSecond = 4.8;
   private static final double kMaxAngularSpeed = 2 * Math.PI; // radians per second
+
   public void setState(SwerveModuleState state) {
-    // Apply chassis angular offset to the desired state.
-    SwerveModuleState correctedDesiredState = new SwerveModuleState();
-    correctedDesiredState.speedMetersPerSecond = state.speedMetersPerSecond;
-    correctedDesiredState.angle = state.angle.plus(Rotation2d.fromRadians(agularOffset));
+    // Prevent jittering at very low speeds
+//    if (Math.abs(state.speedMetersPerSecond) < 0.001) {
+//      stop();
+//      return;
+//    }
+    if (Math.abs(state.speedMetersPerSecond) < 0.001)
+      return;
 
-    // Optimize the reference state to avoid spinning further than 90 degrees.
-    correctedDesiredState.optimize(new Rotation2d(turnEncoder.getPosition()));
-
-    // Command driving and turning SPARKS towards their respective setpoints.
-    drivingController.setSetpoint(correctedDesiredState.speedMetersPerSecond, SparkBase.ControlType.kVelocity);
-    turningController.setSetpoint(correctedDesiredState.angle.getRadians(), SparkBase.ControlType.kPosition);
+    state = SwerveModuleState.optimize(state, getState().angle);
+    driveMotor.set(state.speedMetersPerSecond / kMaxSpeedMetersPerSecond);
+    turnMotor.set(turningPidController.calculate(getTurningPosition(), state.angle.getRadians()));
   }
 }

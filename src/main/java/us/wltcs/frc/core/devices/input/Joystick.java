@@ -1,4 +1,5 @@
 package us.wltcs.frc.core.devices.input;
+import java.util.HashMap;
 import java.util.Map;
 
 import lombok.Getter;
@@ -8,7 +9,8 @@ import us.wltcs.frc.core.math.vector2.Vector2d;
 
 // Class for the Logitech extreme 3d pro joystick
 public class Joystick {
-  private Map<Integer, Boolean> buttons;
+  private final Map<Integer, Boolean> buttons = new HashMap<>();
+
   @Getter
   private final edu.wpi.first.wpilibj.Joystick joystick;
 

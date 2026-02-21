@@ -22,14 +22,14 @@ public class SwerveModules {
   );
 
   public static final SwerveModule rearLeftMotorController = new SwerveModule(
-    3,
-          4,
+    5,
+          6,
     new Vector2d(-chassisWidth / 2, chassisLength / 2)
   );
 
   public static final SwerveModule rearRightMotorController = new SwerveModule(
-    5,
-    6,
+    7,
+    8,
     new Vector2d(-chassisWidth / 2, -chassisLength / 2)
   );
 }
