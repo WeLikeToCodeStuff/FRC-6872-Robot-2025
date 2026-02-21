@@ -51,4 +51,11 @@ public class SwerveDriver {
     rearLeftModule.setState(swerveModuleStates[2]);
     rearRightModule.setState(swerveModuleStates[3]);
   }
+
+  public void stop() {
+    frontLeftModule.stop();
+    frontRightModule.stop();
+    rearLeftModule.stop();
+    rearRightModule.stop();
+  }
 }

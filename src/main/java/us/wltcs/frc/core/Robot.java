@@ -45,12 +45,6 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotPeriodic() {
-//    if (joystick.getDirection().length() != 0) {
-//      stateMachine.switchState(new Driving(joystick, swerveDriver));
-//    } else {
-//      stateMachine.switchState(new Idle());
-//    }
-
     stateMachine.update();
   }
 
@@ -71,9 +65,10 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
-    if (joystick.getDirection().length() != 0) {
+    if (joystick.getDirection().length() != 0)
       swerveDriver.drive(joystick.getDirection().x, getJoystick().getDirection().y, joystick.getSlider(), true);
-    }
+    else
+      swerveDriver.stop();
 
     stateMachine.update();
   }
