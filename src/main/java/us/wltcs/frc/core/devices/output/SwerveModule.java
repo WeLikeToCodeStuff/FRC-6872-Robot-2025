@@ -9,6 +9,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.AnalogInput;
+import us.wltcs.frc.core.math.MathF;
 import us.wltcs.frc.core.math.vector2.Vector2d;
 import lombok.Getter;
 
@@ -42,7 +43,7 @@ public class SwerveModule {
   private final PIDController drivingPIDController = new PIDController(0, 0, 0);
   private final PIDController turningPIDController = new PIDController(0.5, 0, 0.0001);
 
-  private final double driveMotorGain = 0;
+  private final double driveMotorGain = 1;
   private final double wheelAngularOffset = 0;
 
   @Getter
@@ -57,7 +58,6 @@ public class SwerveModule {
     this.turnEncoder = turnMotor.getAbsoluteEncoder();
     this.absoluteEncoder = new AnalogInput(absoluteEncoderId);
 
-    driveEncoder.setPosition(0);
     this.turningPIDController.enableContinuousInput(-Math.PI, Math.PI);
   }
 
@@ -76,7 +76,7 @@ public class SwerveModule {
     return turnEncoder.getPosition();
   }
 
-  public double getWheelRotationRadians() {
+  public double getWheelRadians() {
     double angle = absoluteEncoder.getVoltage() / RobotController.getVoltage5V();
     angle *= 2.0 * Math.PI;
     angle -= wheelAngularOffset;
@@ -85,7 +85,7 @@ public class SwerveModule {
   }
 
   public SwerveModuleState getState() {
-    return new SwerveModuleState(driveEncoder.getVelocity(), new Rotation2d(getWheelRotationRadians()));
+    return new SwerveModuleState(driveEncoder.getVelocity(), new Rotation2d(getWheelRadians()));
   }
 
   public void stop() {
@@ -101,7 +101,12 @@ public class SwerveModule {
     }
 
     state = SwerveModuleState.optimize(state, getState().angle);
-    driveMotor.set(state.speedMetersPerSecond / kMaxSpeedMetersPerSecond);
-    turnMotor.set(turningPIDController.calculate(getTurningPosition(), state.angle.getRadians()));
+
+    final double driveOutput = drivingPIDController.calculate(getDriveVelocity(), state.speedMetersPerSecond);
+    final double turnOutput = turningPIDController.calculate(getWheelRadians(), state.angle.getRadians());
+    final double driveFeedForward = state.speedMetersPerSecond / kMaxSpeedMetersPerSecond;
+
+    driveMotor.set(MathF.clamp((driveOutput + driveFeedForward) * driveMotorGain, -1.0, 1.0));
+    turnMotor.set(turnOutput);
   }
 }
