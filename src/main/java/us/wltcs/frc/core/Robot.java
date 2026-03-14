@@ -1,15 +1,21 @@
 package us.wltcs.frc.core;
 
+import com.revrobotics.spark.SparkLowLevel;
+import com.revrobotics.spark.SparkMax;
 import edu.wpi.first.wpilibj.TimedRobot;
 import lombok.Getter;
 import us.wltcs.frc.core.api.event.*;
 import us.wltcs.frc.core.autonomous.RecordingManager;
 import us.wltcs.frc.core.devices.output.Camera;
 import us.wltcs.frc.core.devices.input.Joystick;
+import us.wltcs.frc.core.devices.output.Launcher;
 import us.wltcs.frc.core.ui.Dashboard;
 import us.wltcs.frc.robot.SwerveModules;
+import us.wltcs.frc.robot.events.RobotPeriodic;
 import us.wltcs.frc.robot.events.RobotStart;
 import us.wltcs.frc.core.statemachine.StateMachine;
+import us.wltcs.frc.robot.events.TeleoperatedPeriodicEvent;
+import us.wltcs.frc.robot.listeners.LauncherListener;
 
 // Robot class defining all the behaviour and actions of the robot
 // Learn more about the TimedRobot class here:
@@ -25,20 +31,23 @@ public class Robot extends TimedRobot {
     SwerveModules.rearRightMotorController
   );
 
-  @Getter
-  private final Camera camera = new Camera("Main", 1920, 1080);
+//  @Getter
+//  private final Camera camera = new Camera("Main", 1920, 1080);
 
   @Getter
-  private final Joystick joystick = new Joystick(0);
+  private Joystick joystick;
   private final Dashboard dashboard = new Dashboard();
 
   @Override
   public void robotInit() {
+    this.joystick = new Joystick(0);
 //    Context.program.log(Levels.INFO, String.format("Configured %s as primary controller", joystick.getJoystick().getName()));
     eventBus.subscribe(this);
+    eventBus.subscribe(new LauncherListener(new Launcher(new SparkMax(9, SparkLowLevel.MotorType.kBrushless), new SparkMax(10, SparkLowLevel.MotorType.kBrushless))));
     eventBus.post(new RobotStart(EventType.PRE));
     eventBus.post(new RobotStart(EventType.POST));
 
+    joystick.init();
     // Recordings initialization
     recordingManager.loadRecordings();
   }
@@ -46,11 +55,12 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
     stateMachine.update();
+    joystick.init();
   }
 
   @Override
   public void autonomousInit() {
-
+    joystick.init();
   }
 
   @Override
@@ -60,17 +70,19 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopInit() {
-
+    joystick.init();
   }
 
   @Override
   public void teleopPeriodic() {
+    eventBus.post(new TeleoperatedPeriodicEvent(EventType.PRE, this));
     if (joystick.getDirection().length() != 0)
       swerveDriver.drive(joystick.getDirection().x, getJoystick().getDirection().y, joystick.getSlider(), true);
     else
       swerveDriver.stop();
 
     stateMachine.update();
+    eventBus.post(new TeleoperatedPeriodicEvent(EventType.POST, this));
   }
 
   @Override

@@ -16,7 +16,10 @@ public class Joystick {
 
   public Joystick(int port) {
     this.joystick = new edu.wpi.first.wpilibj.Joystick(port);
-    for (int i = 1; i <= joystick.getButtonCount(); i++) {
+  }
+
+  public void init() {
+    for (int i = 1; i <= this.joystick.getButtonCount(); i++) {
       try {
         buttons.put(i, joystick.getRawButton(i));
       } catch (Exception e) {
@@ -39,7 +42,7 @@ public class Joystick {
 
   public boolean buttonPressed(int button) {
     if (button > buttons.size()) {
-      Context.movement.logError("Attempted to get an out of range button id of  %s", button);
+      Context.movement.logError("Attempted to get an out of range button id of %s", button);
       return false;
     }
 
