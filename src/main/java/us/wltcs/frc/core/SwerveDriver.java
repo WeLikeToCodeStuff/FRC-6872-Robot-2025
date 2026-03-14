@@ -40,31 +40,13 @@ public class SwerveDriver {
     double ySpeedDelivered = ySpeed * kMaxSpeedMetersPerSecond;
     double rotDelivered = rot * kMaxAngularSpeed;
 
-//    var swerveModuleStates = kinematics.toSwerveModuleStates(
-//            fieldRelative
-//                    ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered,
-//                    Rotation2d.fromDegrees(gyroscope.getDegrees()))
-//                    : new ChassisSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered));
-//    SwerveDriveKinematics.desaturateWheelSpeeds(
-//            swerveModuleStates, kMaxSpeedMetersPerSecond);
-
-//    frontLeftModule.setState(swerveModuleStates[0]);
-//    frontRightModule.setState(swerveModuleStates[1]);
-//    rearLeftModule.setState(swerveModuleStates[2]);
-//    rearRightModule.setState(swerveModuleStates[3]);
-    // 5. Convert chassis speeds to individual module states
-
-    // 4. Construct desired chassis speeds
-    ChassisSpeeds chassisSpeeds;
-    if (fieldRelative) {
-      // Relative to field
-      chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered, Rotation2d.fromDegrees(gyroscope.getDegrees()));
-    } else {
-      // Relative to robot
-      chassisSpeeds = new ChassisSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered);
-    }
-
-    SwerveModuleState[] swerveModuleStates = kinematics.toSwerveModuleStates(chassisSpeeds);
+    var swerveModuleStates = kinematics.toSwerveModuleStates(
+            fieldRelative
+                    ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered,
+                    Rotation2d.fromDegrees(gyroscope.getDegrees()))
+                    : new ChassisSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered));
+    SwerveDriveKinematics.desaturateWheelSpeeds(
+            swerveModuleStates, kMaxSpeedMetersPerSecond);
     frontLeftModule.setState(swerveModuleStates[0]);
     frontRightModule.setState(swerveModuleStates[1]);
     rearLeftModule.setState(swerveModuleStates[2]);

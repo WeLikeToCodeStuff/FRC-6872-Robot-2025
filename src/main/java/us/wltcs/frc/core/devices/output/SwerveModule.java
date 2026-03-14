@@ -40,8 +40,8 @@ public class SwerveModule {
   // Encoder that tracks the rotation of the wheel
   private final AnalogInput absoluteEncoder;
 
-  private final PIDController drivingPIDController = new PIDController(0.5, 0.5, 0.01);
-  private final PIDController turningPIDController = new PIDController(0.5, 0.5, 0.01);
+  private final PIDController drivingPIDController = new PIDController(0.01, 0.01, 0);
+  private final PIDController turningPIDController = new PIDController(0.5, 0.01, 0.001);
 
   private final double driveMotorGain = 1;
   private final double wheelAngularOffset = 0;
@@ -80,7 +80,6 @@ public class SwerveModule {
     double angle = absoluteEncoder.getVoltage() / RobotController.getVoltage5V();
     angle *= 2.0 * Math.PI;
     angle -= wheelAngularOffset;
-//    return angle * (absoluteEncoderReversed ? -1.0 : 1.0);
     return angle;
   }
 
@@ -105,6 +104,8 @@ public class SwerveModule {
     final double driveOutput = drivingPIDController.calculate(getDriveVelocity(), state.speedMetersPerSecond);
     final double turnOutput = turningPIDController.calculate(getWheelRadians(), state.angle.getRadians());
     final double driveFeedForward = state.speedMetersPerSecond / kMaxSpeedMetersPerSecond;
+
+    System.out.println((driveOutput + driveFeedForward) * driveMotorGain);
 
     driveMotor.set(MathF.clamp((driveOutput + driveFeedForward) * driveMotorGain, -1.0, 1.0));
     turnMotor.set(turnOutput);
