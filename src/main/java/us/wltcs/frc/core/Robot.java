@@ -65,11 +65,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
-    if (joystick.getDirection().length() != 0)
-      swerveDriver.drive(joystick.getDirection().x, getJoystick().getDirection().y, joystick.getSlider(), true);
-    else
-      swerveDriver.stop();
-
+    swerveDriver.drive(joystick.getDirection().x, joystick.getDirection().y, joystick.getSlider(), true);
     stateMachine.update();
   }
 

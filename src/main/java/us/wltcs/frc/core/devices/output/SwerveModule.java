@@ -40,8 +40,8 @@ public class SwerveModule {
   // Encoder that tracks the rotation of the wheel
   private final AnalogInput absoluteEncoder;
 
-  private final PIDController drivingPIDController = new PIDController(0, 0, 0);
-  private final PIDController turningPIDController = new PIDController(0.5, 0, 0.0001);
+  private final PIDController drivingPIDController = new PIDController(0.5, 0.5, 0.01);
+  private final PIDController turningPIDController = new PIDController(0.5, 0.5, 0.01);
 
   private final double driveMotorGain = 1;
   private final double wheelAngularOffset = 0;
@@ -100,7 +100,7 @@ public class SwerveModule {
       return;
     }
 
-    state = SwerveModuleState.optimize(state, getState().angle);
+    state.optimize(getState().angle);
 
     final double driveOutput = drivingPIDController.calculate(getDriveVelocity(), state.speedMetersPerSecond);
     final double turnOutput = turningPIDController.calculate(getWheelRadians(), state.angle.getRadians());
