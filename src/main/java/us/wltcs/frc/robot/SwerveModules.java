@@ -1,13 +1,15 @@
 package us.wltcs.frc.robot;
 import us.wltcs.frc.core.devices.output.SwerveModule;
+import us.wltcs.frc.core.math.MathF;
 import us.wltcs.frc.core.math.vector2.Vector2d;
 
 public class SwerveModules {
   // Naming convention: forward/rear left/right motor
   // Positions are relative to the center of the robot.
 
-  public static final double chassisWidth = 25;
-  public static final double chassisLength = 25;
+  // Units are in meters
+  public static final double chassisWidth = MathF.inchesToMeters(28);
+  public static final double chassisLength = MathF.inchesToMeters(28);
 
   public static final SwerveModule frontLeftMotorController = new SwerveModule(
     1,

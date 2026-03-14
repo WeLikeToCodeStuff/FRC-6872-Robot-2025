@@ -77,7 +77,7 @@ public class Robot extends TimedRobot {
   public void teleopPeriodic() {
     eventBus.post(new TeleoperatedPeriodicEvent(EventType.PRE, this));
     if (joystick.getDirection().length() != 0)
-      swerveDriver.drive(joystick.getDirection().x, getJoystick().getDirection().y, joystick.getSlider(), true);
+      swerveDriver.drive(joystick.getDirection().x, joystick.getDirection().y, joystick.getSlider(), true);
     else
       swerveDriver.stop();
 
