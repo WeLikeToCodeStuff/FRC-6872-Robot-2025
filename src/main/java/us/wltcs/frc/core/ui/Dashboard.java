@@ -23,6 +23,9 @@ public class Dashboard {
     this.callbackMap = new HashMap<>();
   }
 
+
+
+  
   public void update() {
     callbackMap.forEach((key, callback) -> {
       try {
@@ -37,7 +40,7 @@ public class Dashboard {
   public <T> void addEntry(String key, Supplier<T> supplier) {
     NetworkTableEntry entry = table.getEntry(key);
     entries.put(key, entry);
-    callbackMap.put(entry.getTopic().getName(), supplier::get);
+    callbackMap.put(key, supplier::get);
   }
 
   private <T> void setValue(NetworkTableEntry entry, T value) {
