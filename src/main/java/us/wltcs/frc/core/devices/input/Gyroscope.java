@@ -7,10 +7,11 @@ import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 public class Gyroscope {
   private final ADXRS450_Gyro gyro;
 
-  // TODO: Reset the rotation each time robot boots up
-
   public Gyroscope() {
     this.gyro = new ADXRS450_Gyro();
+
+    // NOTE: idk if this is gonna work yet, as it is mentioned that the gyroscope might not be loaded in the constructor
+    gyro.reset();
   }
 
   public double getDegrees() {

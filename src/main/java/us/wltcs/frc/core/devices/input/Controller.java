@@ -20,8 +20,7 @@ public class Controller {
     this.controller = new XboxController(port);
   }
 
-  public void init() {
-    System.out.print(getLeftDirection());
+  public void initialize() {
     for (int i = 1; i <= this.controller.getButtonCount(); i++) {
       try {
         buttons.put(i, controller.getRawButton(i));
@@ -29,6 +28,15 @@ public class Controller {
         Context.movement.logError("Invalid button ID %s", i);
       }
     }
+  }
+
+  public boolean buttonPressed(int button) {
+    if (button > buttons.size()) {
+      Context.movement.logError("Attempted to get an out of range button id of %s", button);
+      return false;
+    }
+
+    return buttons.get(button);
   }
 
   // Vector direction of left joystick

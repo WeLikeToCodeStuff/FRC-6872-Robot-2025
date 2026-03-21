@@ -7,7 +7,6 @@ import lombok.Getter;
 import us.wltcs.frc.core.api.event.*;
 import us.wltcs.frc.core.autonomous.RecordingManager;
 import us.wltcs.frc.core.devices.input.Controller;
-import us.wltcs.frc.core.devices.input.Joystick;
 import us.wltcs.frc.core.devices.output.Launcher;
 import us.wltcs.frc.core.ui.Dashboard;
 import us.wltcs.frc.robot.SwerveModules;
@@ -48,7 +47,7 @@ public class Robot extends TimedRobot {
     eventBus.post(new RobotStart(EventType.PRE));
     eventBus.post(new RobotStart(EventType.POST));
 
-    controller.init();
+    controller.initialize();
     // Recordings initialization
     recordingManager.loadRecordings();
 
@@ -61,7 +60,7 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
     stateMachine.update();
-    controller.init();
+    controller.initialize();
     dashboard.update();
     driver.setPID(
       (double)dashboard.getValue("P"),
@@ -72,7 +71,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit() {
-    controller.init();
+    controller.initialize();
   }
 
   @Override
@@ -82,7 +81,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopInit() {
-    controller.init();
+    controller.initialize();
   }
 
   @Override
