@@ -35,18 +35,34 @@ public class SwerveDriver {
   private static final double kMaxSpeedMetersPerSecond = 4.8;
   private static final double kMaxAngularSpeed = 2 * Math.PI; // radians per second
   public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative) {
-    // Convert the commanded speeds into the correct units for the drivetrain
-    double xSpeedDelivered = xSpeed * kMaxSpeedMetersPerSecond;
-    double ySpeedDelivered = ySpeed * kMaxSpeedMetersPerSecond;
-    double rotDelivered = rot * kMaxAngularSpeed;
+//    // Convert the commanded speeds into the correct units for the drivetrain
+//    double xSpeedDelivered = xSpeed * kMaxSpeedMetersPerSecond;
+//    double ySpeedDelivered = ySpeed * kMaxSpeedMetersPerSecond;
+//    double rotDelivered = rot * kMaxAngularSpeed;
+//
+//    var swerveModuleStates = kinematics.toSwerveModuleStates(
+//            fieldRelative
+//                    ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered,
+//                    Rotation2d.fromDegrees(gyroscope.getDegrees()))
+//                    : new ChassisSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered));
+//    SwerveDriveKinematics.desaturateWheelSpeeds(
+//            swerveModuleStates, kMaxSpeedMetersPerSecond);
+//    frontLeftModule.setState(swerveModuleStates[0]);
+//    frontRightModule.setState(swerveModuleStates[1]);
+//    rearLeftModule.setState(swerveModuleStates[2]);
+//    rearRightModule.setState(swerveModuleStates[3]);
 
-    var swerveModuleStates = kinematics.toSwerveModuleStates(
-            fieldRelative
-                    ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered,
-                    Rotation2d.fromDegrees(gyroscope.getDegrees()))
-                    : new ChassisSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered));
+    SwerveModuleState[] swerveModuleStates;
+    if(fieldRelative) {
+      swerveModuleStates = kinematics.toSwerveModuleStates(
+              ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rot, Rotation2d.fromDegrees(-gyroscope.getDegrees())));
+    } else {
+      swerveModuleStates = kinematics.toSwerveModuleStates(new ChassisSpeeds(xSpeed, ySpeed, rot));
+    }
+
     SwerveDriveKinematics.desaturateWheelSpeeds(
             swerveModuleStates, kMaxSpeedMetersPerSecond);
+
     frontLeftModule.setState(swerveModuleStates[0]);
     frontRightModule.setState(swerveModuleStates[1]);
     rearLeftModule.setState(swerveModuleStates[2]);
