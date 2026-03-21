@@ -37,7 +37,7 @@ public class Dashboard {
     setValue(entry, value);
   }
 
-  public <T> T getValue(String key) {
+  public Object getValue(String key) {
     NetworkTableEntry entry = table.getEntry(key);
     return getValue(entry);
   }
@@ -60,16 +60,14 @@ public class Dashboard {
       throw new IllegalArgumentException("Unsupported dashboard type: " + value.getClass());
   }
 
-  private <T> T getValue(NetworkTableEntry entry) {
+  private Object getValue(NetworkTableEntry entry) {
     NetworkTableValue value = entry.getValue();
-    // TODO: implement more types
-    if (value.isDouble()) return entry.getDouble(0);
-    else if (value.isBoolean()) return entry.setBoolean(false);
-    else if (value.isString()) return entry.setString("Not Found");
-    else if (value.isInteger()) return entry.setInteger(0);
-    else
-      throw new IllegalArgumentException("Unsupported dashboard type: " + value.getClass());
 
-    return null;
+    if (value.isDouble()) return entry.getDouble(0);
+    else if (value.isBoolean()) return entry.getBoolean(false);
+    else if (value.isString()) return entry.getString("");
+    else if (value.isInteger()) return entry.getInteger(0);
+    else
+      throw new IllegalArgumentException("Unsupported dashboard type: " + value.getType());
   }
 }
