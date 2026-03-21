@@ -49,7 +49,7 @@ public class SwerveModule {
   @Getter
   private final Vector2d position;
 
-  public SwerveModule(int driveMotorControllerId, int turnMotorControllerId, int absoluteEncoderId, Vector2d position) {
+  public SwerveModule(int turnMotorControllerId, int driveMotorControllerId, int absoluteEncoderId, Vector2d position) {
     this.position = position;
     this.driveMotor = new SparkMax(driveMotorControllerId, SparkLowLevel.MotorType.kBrushless);
     this.turnMotor = new SparkMax(turnMotorControllerId, SparkLowLevel.MotorType.kBrushless);

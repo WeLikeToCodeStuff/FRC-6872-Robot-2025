@@ -51,7 +51,12 @@ public class Robot extends TimedRobot {
     // Recordings initialization
     recordingManager.loadRecordings();
 
-    dashboard.addEntry("PID", () -> {return true;});
+//    dashboard.addEntry("P", () -> {return 1;});
+//    dashboard.addEntry("I", () -> {return 1;});
+//    dashboard.addEntry("D", () -> {return 1;});
+    dashboard.addEntry("P", 1);
+    dashboard.addEntry("I", 1);
+    dashboard.addEntry("D", 1);
   }
 
   @Override

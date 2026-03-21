@@ -5,16 +5,13 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.function.Supplier;
 
-import edu.wpi.first.networktables.GenericEntry;
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableEntry;
-import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
 public class Dashboard {
   private final NetworkTableInstance inst = NetworkTableInstance.getDefault();
-  private final NetworkTable table = inst.getTable("6872 Robot");
+  private final NetworkTable table = inst.getTable("Robot");
   private final Map<String, NetworkTableEntry> entries;
   private final Map<String, Callable<?>> callbackMap;
 
@@ -23,9 +20,6 @@ public class Dashboard {
     this.callbackMap = new HashMap<>();
   }
 
-
-
-  
   public void update() {
     callbackMap.forEach((key, callback) -> {
       try {
@@ -37,11 +31,23 @@ public class Dashboard {
     });
   }
 
-  public <T> void addEntry(String key, Supplier<T> supplier) {
+  public <T> void addEntry(String key, T value) {
     NetworkTableEntry entry = table.getEntry(key);
     entries.put(key, entry);
-    callbackMap.put(key, supplier::get);
+    setValue(entry, value);
   }
+
+  public <T> T getValue(String key) {
+    NetworkTableEntry entry = table.getEntry(key);
+    return getValue(entry);
+  }
+
+
+//  public <T> void addEntry(String key, T value) {
+//    NetworkTableEntry entry = table.getEntry(key);
+//    entries.put(key, entry);
+//    setValue(entry, value);
+//  }
 
   private <T> void setValue(NetworkTableEntry entry, T value) {
     // TODO: implement more types
@@ -52,5 +58,18 @@ public class Dashboard {
     else if (value instanceof Long l) entry.setInteger(l);
     else
       throw new IllegalArgumentException("Unsupported dashboard type: " + value.getClass());
+  }
+
+  private <T> T getValue(NetworkTableEntry entry) {
+    NetworkTableValue value = entry.getValue();
+    // TODO: implement more types
+    if (value.isDouble()) return entry.getDouble(0);
+    else if (value.isBoolean()) return entry.setBoolean(false);
+    else if (value.isString()) return entry.setString("Not Found");
+    else if (value.isInteger()) return entry.setInteger(0);
+    else
+      throw new IllegalArgumentException("Unsupported dashboard type: " + value.getClass());
+
+    return null;
   }
 }
