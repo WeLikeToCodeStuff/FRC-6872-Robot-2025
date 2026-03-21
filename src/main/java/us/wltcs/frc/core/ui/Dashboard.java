@@ -16,7 +16,7 @@ public class Dashboard {
   private final NetworkTableInstance inst = NetworkTableInstance.getDefault();
   private final NetworkTable table = inst.getTable("6872 Robot");
   private final Map<String, NetworkTableEntry> entries;
-  private final Map<String, Callable> callbackMap;
+  private final Map<String, Callable<?>> callbackMap;
 
   public Dashboard() {
     this.entries = new HashMap<>();
@@ -25,7 +25,12 @@ public class Dashboard {
 
   public void update() {
     callbackMap.forEach((key, callback) -> {
-      setValue(entries.get(key), callback);
+      try {
+        Object value = callback.call();
+        setValue(entries.get(key), value);
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      }
     });
   }
 

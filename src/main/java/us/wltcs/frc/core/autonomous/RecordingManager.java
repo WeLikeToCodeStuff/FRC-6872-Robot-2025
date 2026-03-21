@@ -23,8 +23,9 @@ public class RecordingManager {
   }
 
   public void loadRecordings() {
-    if (!storageDirectory.exists()) storageDirectory.mkdirs();
-    for (File file : Objects.requireNonNull(storageDirectory.listFiles())) {
+    try {
+      if (!storageDirectory.exists()) storageDirectory.mkdirs();
+      for (File file : Objects.requireNonNull(storageDirectory.listFiles())) {
       if (file.getName().endsWith(".json")) {
         try {
           Recording[] loadedRecordings = Json.read(Recording[].class, file.getName()).newInstance();
@@ -35,6 +36,10 @@ public class RecordingManager {
           Context.program.log(Levels.ERROR, String.format("Failed to load recording from \"%s\", cause: %s", file.getPath(), exception.getCause()));
         }
       }
+    }
+    } catch (Exception exception) {
+      Context.program.log(Levels.ERROR, "Directory does not exist");
+      return;
     }
   }
 }
