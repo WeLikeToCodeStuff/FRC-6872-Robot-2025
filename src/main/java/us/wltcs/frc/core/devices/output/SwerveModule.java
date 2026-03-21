@@ -9,7 +9,6 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.AnalogInput;
-import us.wltcs.frc.core.math.MathF;
 import us.wltcs.frc.core.math.vector2.Vector2d;
 import lombok.Getter;
 
@@ -19,32 +18,26 @@ import lombok.Getter;
 // The position of the modules must be in meters.
 // Page explaining how PID controller works: https://mikelikesrobots.github.io/blog/understand-pid-controllers/
 public class SwerveModule {
-  private static final double kMaxSpeedMetersPerSecond = 4.8;
-  private static final double kMaxAngularSpeed = 2 * Math.PI; // radians per second
-  public static final double kPModuleTurningController = 0.5;
-  public static final double kPModuleDriveController = 0;
-
-  // TODO: 'EncoderDistancePerPulse' should be calculated based on the gearing and wheel diameter
-  public static final double kDriveEncoderDistancePerPulse = 0.0011265396;
-
-
   private final SparkMax driveMotor;
   private final SparkMax turnMotor;
 
-  // Encoder that tracks the rotation velocity of the motor that drives the wheel
+  // Tracks the rotation velocity of the motor that drives the wheel
   private final RelativeEncoder driveEncoder;
 
-  // Encoder that tracks the rotation velocity of the motor that turns the wheel
+  // Tracks the rotation velocity of the motor that turns the wheel
   private final AbsoluteEncoder turnEncoder;
 
-  // Encoder that tracks the rotation of the wheel
+  // Tracks the rotation of the wheel
   private final AnalogInput absoluteEncoder;
 
   private final PIDController drivingPIDController = new PIDController(0.01, 0.01, 0);
-  private final PIDController turningPIDController = new PIDController(0.5, 0.01, 0.001);
+  private final PIDController turningPIDController = new PIDController(0.5, 0, 0);
 
   private final double driveMotorGain = 1;
-  private final double wheelAngularOffset = 0;
+
+  // Offset of the encoder in radians
+  private final double absoluteEncoderOffset;
+  private final boolean absoluteEncoderReversed;
 
   public double getOutput() {
     return driveMotor.getAppliedOutput();
@@ -57,7 +50,14 @@ public class SwerveModule {
   @Getter
   private final Vector2d position;
 
-  public SwerveModule(int turnMotorControllerId, int driveMotorControllerId, int absoluteEncoderId, Vector2d position) {
+  public SwerveModule(
+    int turnMotorControllerId,
+    int driveMotorControllerId,
+    int absoluteEncoderId,
+    Vector2d position,
+    double absoluteEncoderOffset,
+    boolean absoluteEncoderReversed
+  ) {
     this.position = position;
     this.driveMotor = new SparkMax(driveMotorControllerId, SparkLowLevel.MotorType.kBrushless);
     this.turnMotor = new SparkMax(turnMotorControllerId, SparkLowLevel.MotorType.kBrushless);
@@ -65,8 +65,16 @@ public class SwerveModule {
     this.driveEncoder = driveMotor.getEncoder();
     this.turnEncoder = turnMotor.getAbsoluteEncoder();
     this.absoluteEncoder = new AnalogInput(absoluteEncoderId);
+    this.absoluteEncoderOffset = absoluteEncoderOffset;
+    this.absoluteEncoderReversed = absoluteEncoderReversed;
 
     this.turningPIDController.enableContinuousInput(-Math.PI, Math.PI);
+
+    stop();
+  }
+
+  public double getDrivePosition() {
+    return driveEncoder.getPosition();
   }
 
   // Gets the velocity of the motor that drives the wheel
@@ -84,15 +92,22 @@ public class SwerveModule {
     return turnEncoder.getPosition();
   }
 
-  public double getWheelRadians() {
+  public double getAbsoluteEncoderRadians() {
     double angle = absoluteEncoder.getVoltage() / RobotController.getVoltage5V();
     angle *= 2.0 * Math.PI;
-    angle -= wheelAngularOffset;
+    angle -= absoluteEncoderOffset;
+    if (absoluteEncoderReversed)
+      angle *= -1;
+
     return angle;
   }
 
   public SwerveModuleState getState() {
-    return new SwerveModuleState(driveEncoder.getVelocity(), new Rotation2d(getWheelRadians()));
+    return new SwerveModuleState(driveEncoder.getVelocity(), new Rotation2d(getAbsoluteEncoderRadians()));
+  }
+
+  public void resetEncoders() {
+    driveEncoder.setPosition(0);
   }
 
   public void stop() {
@@ -100,22 +115,14 @@ public class SwerveModule {
     turnMotor.set(0);
   }
 
-  public void setState(SwerveModuleState state) {
-    // Prevent jittering at very low speeds
+  public void setState(SwerveModuleState state, float driveSpeed) {
     if (Math.abs(state.speedMetersPerSecond) < 0.001) {
       stop();
       return;
     }
 
     state.optimize(getState().angle);
-
-    final double driveOutput = drivingPIDController.calculate(getDriveVelocity(), state.speedMetersPerSecond);
-    final double turnOutput = turningPIDController.calculate(getWheelRadians(), state.angle.getRadians());
-    final double driveFeedForward = state.speedMetersPerSecond / kMaxSpeedMetersPerSecond;
-
-//    System.out.println((driveOutput + driveFeedForward) * driveMotorGain);
-
-    driveMotor.set(MathF.clamp((driveOutput + driveFeedForward) * driveMotorGain, -1.0, 1.0));
-//    turnMotor.set(turnOutput);
+    driveMotor.set(state.speedMetersPerSecond / driveSpeed);
+    turnMotor.set(turningPIDController.calculate(getTurningPosition(), state.angle.getRadians()));
   }
 }

@@ -6,12 +6,10 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import lombok.Getter;
 import us.wltcs.frc.core.api.event.*;
 import us.wltcs.frc.core.autonomous.RecordingManager;
-import us.wltcs.frc.core.devices.output.Camera;
 import us.wltcs.frc.core.devices.input.Joystick;
 import us.wltcs.frc.core.devices.output.Launcher;
 import us.wltcs.frc.core.ui.Dashboard;
 import us.wltcs.frc.robot.SwerveModules;
-import us.wltcs.frc.robot.events.RobotPeriodic;
 import us.wltcs.frc.robot.events.RobotStart;
 import us.wltcs.frc.core.statemachine.StateMachine;
 import us.wltcs.frc.robot.events.TeleoperatedPeriodicEvent;
@@ -24,11 +22,12 @@ public class Robot extends TimedRobot {
   private final EventBus eventBus = new EventBus();
   private final StateMachine stateMachine = new StateMachine();
   private final RecordingManager recordingManager = new RecordingManager();
-  private final SwerveDriver swerveDriver = new SwerveDriver(
+  private final Driver driver = new Driver(
     SwerveModules.frontLeftMotorController,
     SwerveModules.frontRightMotorController,
     SwerveModules.rearLeftMotorController,
-    SwerveModules.rearRightMotorController
+    SwerveModules.rearRightMotorController,
+    5
   );
 
 //  @Getter
@@ -54,7 +53,7 @@ public class Robot extends TimedRobot {
     dashboard.<Double>addEntry("P", 1.0);
     dashboard.<Double>addEntry("I", 1.0);
     dashboard.<Double>addEntry("D", 1.0);
-    dashboard.<Double>addEntry("MotorPower", () -> {return swerveDriver.getControllerOutput();});
+    dashboard.<Double>addEntry("MotorPower", () -> {return driver.getControllerOutput();});
   }
 
   @Override
@@ -62,7 +61,7 @@ public class Robot extends TimedRobot {
     stateMachine.update();
     joystick.init();
     dashboard.update();
-    swerveDriver.setPID(
+    driver.setPID(
       (double)dashboard.getValue("P"),
       (double)dashboard.getValue("I"),
       (double)dashboard.getValue("D")
@@ -88,9 +87,9 @@ public class Robot extends TimedRobot {
   public void teleopPeriodic() {
     eventBus.post(new TeleoperatedPeriodicEvent(EventType.PRE, this));
     if (joystick.getDirection().length() != 0)
-      swerveDriver.drive(joystick.getDirection().x, joystick.getDirection().y, joystick.getSlider(), true);
+      driver.drive(joystick.getDirection(), joystick.getDirection(), true);
     else
-      swerveDriver.stop();
+      driver.stop();
 
     stateMachine.update();
     eventBus.post(new TeleoperatedPeriodicEvent(EventType.POST, this));

@@ -48,5 +48,4 @@ public class Joystick {
 
     return buttons.get(button);
   }
-
 }
