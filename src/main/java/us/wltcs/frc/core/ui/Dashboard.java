@@ -4,10 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.function.Supplier;
-
 import edu.wpi.first.networktables.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
 
 public class Dashboard {
   private final NetworkTableInstance inst = NetworkTableInstance.getDefault();
@@ -37,17 +34,17 @@ public class Dashboard {
     setValue(entry, value);
   }
 
+  // This function adds a callback function to call periodically
+  public <T> void addEntry(String key, Supplier<T> supplier) {
+    NetworkTableEntry entry = table.getEntry(key);
+    entries.put(key, entry);
+    callbackMap.put(key, supplier::get);
+  }
+
   public Object getValue(String key) {
     NetworkTableEntry entry = table.getEntry(key);
     return getValue(entry);
   }
-
-
-//  public <T> void addEntry(String key, T value) {
-//    NetworkTableEntry entry = table.getEntry(key);
-//    entries.put(key, entry);
-//    setValue(entry, value);
-//  }
 
   private <T> void setValue(NetworkTableEntry entry, T value) {
     // TODO: implement more types
@@ -62,7 +59,6 @@ public class Dashboard {
 
   private Object getValue(NetworkTableEntry entry) {
     NetworkTableValue value = entry.getValue();
-
     if (value.isDouble()) return entry.getDouble(0);
     else if (value.isBoolean()) return entry.getBoolean(false);
     else if (value.isString()) return entry.getString("");

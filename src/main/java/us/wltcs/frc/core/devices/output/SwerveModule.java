@@ -46,6 +46,10 @@ public class SwerveModule {
   private final double driveMotorGain = 1;
   private final double wheelAngularOffset = 0;
 
+  public void setPID(double p, double i, double d) {
+    drivingPIDController.setPID(p, i, d);
+  }
+
   @Getter
   private final Vector2d position;
 
@@ -105,9 +109,9 @@ public class SwerveModule {
     final double turnOutput = turningPIDController.calculate(getWheelRadians(), state.angle.getRadians());
     final double driveFeedForward = state.speedMetersPerSecond / kMaxSpeedMetersPerSecond;
 
-    System.out.println((driveOutput + driveFeedForward) * driveMotorGain);
+//    System.out.println((driveOutput + driveFeedForward) * driveMotorGain);
 
     driveMotor.set(MathF.clamp((driveOutput + driveFeedForward) * driveMotorGain, -1.0, 1.0));
-    turnMotor.set(turnOutput);
+//    turnMotor.set(turnOutput);
   }
 }

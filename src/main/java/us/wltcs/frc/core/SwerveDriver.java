@@ -53,6 +53,13 @@ public class SwerveDriver {
     rearRightModule.setState(swerveModuleStates[3]);
   }
 
+  public void setPID(double p, double i, double d) {
+    frontLeftModule.setPID(p, i, d);
+    frontRightModule.setPID(p, i, d);
+    rearLeftModule.setPID(p, i, d);
+    rearRightModule.setPID(p, i, d);
+  }
+
   public void stop() {
     frontLeftModule.stop();
     frontRightModule.stop();

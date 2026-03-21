@@ -51,12 +51,9 @@ public class Robot extends TimedRobot {
     // Recordings initialization
     recordingManager.loadRecordings();
 
-//    dashboard.addEntry("P", () -> {return 1;});
-//    dashboard.addEntry("I", () -> {return 1;});
-//    dashboard.addEntry("D", () -> {return 1;});
-    dashboard.addEntry("P", 1);
-    dashboard.addEntry("I", 1);
-    dashboard.addEntry("D", 1);
+    dashboard.<Double>addEntry("P", 1.0);
+    dashboard.<Double>addEntry("I", 1.0);
+    dashboard.<Double>addEntry("D", 1.0);
   }
 
   @Override
@@ -64,6 +61,11 @@ public class Robot extends TimedRobot {
     stateMachine.update();
     joystick.init();
     dashboard.update();
+    swerveDriver.setPID(
+      (double)dashboard.getValue("P"),
+      (double)dashboard.getValue("I"),
+      (double)dashboard.getValue("D")
+    );
   }
 
   @Override
