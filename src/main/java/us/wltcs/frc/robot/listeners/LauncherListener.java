@@ -3,8 +3,6 @@ package us.wltcs.frc.robot.listeners;
 import us.wltcs.frc.core.api.event.EventListener;
 import us.wltcs.frc.core.api.event.EventTarget;
 import us.wltcs.frc.core.devices.output.Launcher;
-import us.wltcs.frc.core.logging.Context;
-import us.wltcs.frc.core.logging.Levels;
 import us.wltcs.frc.robot.events.TeleoperatedPeriodicEvent;
 
 public class LauncherListener {

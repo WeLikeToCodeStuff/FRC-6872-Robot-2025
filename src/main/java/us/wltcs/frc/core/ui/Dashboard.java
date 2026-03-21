@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.function.Supplier;
+
 import edu.wpi.first.networktables.*;
 
 public class Dashboard {

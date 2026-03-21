@@ -8,6 +8,8 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 
 public class Launcher {
     private final SparkMax leftLauncherMotor;
+
+
     private final SparkMax rightLauncherMotor;
 
     public Launcher(SparkMax leftLauncherMotor, SparkMax rightLauncherMotor) {

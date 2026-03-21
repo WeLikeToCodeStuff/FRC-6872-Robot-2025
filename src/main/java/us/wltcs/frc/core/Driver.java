@@ -8,6 +8,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import us.wltcs.frc.core.devices.input.Gyroscope;
 import us.wltcs.frc.core.devices.output.SwerveModule;
 import us.wltcs.frc.core.math.vector2.Vector2d;
+import us.wltcs.frc.robot.SwerveModules;
 
 public class Driver {
   private final Gyroscope gyroscope = new Gyroscope();
@@ -32,11 +33,18 @@ public class Driver {
     float driveSpeed
   ) {
     this.driveSpeed = driveSpeed;
-    frontLeftModule = frontLeft;
-    frontRightModule = frontRight;
-    rearLeftModule = rearLeft;
-    rearRightModule = rearRight;
-
+    if (Robot.isSimulation() && (frontLeft == null || frontRight == null || rearLeft == null || rearRight == null)) {
+      // In simulation, we can create dummy modules if any of them are null to avoid null pointer exceptions.
+      this.frontLeftModule = new SwerveModule(0, 0, 0, new Vector2d(-SwerveModules.chassisWidth / 2, SwerveModules.chassisLength / 2), 0, false);
+      this.frontRightModule = new SwerveModule(0, 0, 0, new Vector2d(SwerveModules.chassisWidth / 2, SwerveModules.chassisLength / 2), 0, false);
+      this.rearLeftModule = new SwerveModule(0, 0, 0, new Vector2d(-SwerveModules.chassisWidth / 2, -SwerveModules.chassisLength / 2), 0, false);
+      this.rearRightModule = new SwerveModule(0, 0, 0, new Vector2d(SwerveModules.chassisWidth / 2, -SwerveModules.chassisLength / 2), 0, false);
+    } else {
+      this.frontLeftModule = frontLeft;
+      this.frontRightModule = frontRight;
+      this.rearLeftModule = rearLeft;
+      this.rearRightModule = rearRight;
+    }
     kinematics = new SwerveDriveKinematics(
       new Translation2d(frontLeft.getPosition().x, frontLeft.getPosition().y),
       new Translation2d(frontRight.getPosition().x, frontRight.getPosition().y),
