@@ -9,7 +9,7 @@ import us.wltcs.frc.core.logging.Context;
 import us.wltcs.frc.core.math.MathF;
 import us.wltcs.frc.core.math.vector2.Vector2d;
 
-// Class for the Logitech F310 controller
+// Class for the Xbox 360, Xbox One, or Logitech F310 controllers
 public class Controller {
   private final Map<Integer, Boolean> buttons = new HashMap<>();
 
@@ -21,7 +21,7 @@ public class Controller {
   }
 
   public void init() {
-    System.out.print(getLeftAxisDirection());
+    System.out.print(getLeftDirection());
     for (int i = 1; i <= this.controller.getButtonCount(); i++) {
       try {
         buttons.put(i, controller.getRawButton(i));
@@ -31,11 +31,29 @@ public class Controller {
     }
   }
 
-  public Vector2d getLeftAxisDirection() {
-    Vector2d vector = new Vector2d(MathF.round((float) controller.getRawAxis(0),5), MathF.round((float) controller.getRawAxis(1), 5));
-    if (vector.length() >= 0.1)
-      return vector.normalized();
+  // Vector direction of left joystick
+  public Vector2d getLeftDirection() {
+    Vector2d vector = new Vector2d(
+      MathF.round((float) controller.getRawAxis(0),5),
+      MathF.round((float) controller.getRawAxis(1), 5)
+    );
 
-    return new Vector2d(0, 0); 
+    if (vector.length() <= 0.01)
+      return new Vector2d(0, 0);
+
+    return vector.normalized();
+  }
+
+  // Vector direction of right joystick
+  public Vector2d getRightDirection() {
+    Vector2d vector = new Vector2d(
+      MathF.round((float) controller.getRawAxis(4),5),
+      MathF.round((float) controller.getRawAxis(5), 5)
+    );
+
+    if (vector.length() <= 0.01)
+      return new Vector2d(0, 0);
+
+    return vector.normalized();
   }
 }

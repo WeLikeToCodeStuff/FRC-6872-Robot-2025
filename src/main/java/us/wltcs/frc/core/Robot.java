@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import lombok.Getter;
 import us.wltcs.frc.core.api.event.*;
 import us.wltcs.frc.core.autonomous.RecordingManager;
+import us.wltcs.frc.core.devices.input.Controller;
 import us.wltcs.frc.core.devices.input.Joystick;
 import us.wltcs.frc.core.devices.output.Launcher;
 import us.wltcs.frc.core.ui.Dashboard;
@@ -34,19 +35,20 @@ public class Robot extends TimedRobot {
 //  private final Camera camera = new Camera("Main", 1920, 1080);
 
   @Getter
-  private Joystick joystick;
+  private Controller controller;
   private final Dashboard dashboard = new Dashboard();
 
   @Override
   public void robotInit() {
-    this.joystick = new Joystick(0);
-//    Context.program.log(Levels.INFO, String.format("Configured %s as primary controller", joystick.getJoystick().getName()));
+    this.controller = new Controller(0);
+
+    //    Context.program.log(Levels.INFO, String.format("Configured %s as primary controller", joystick.getJoystick().getName()));
     eventBus.subscribe(this);
     eventBus.subscribe(new LauncherListener(new Launcher(new SparkMax(9, SparkLowLevel.MotorType.kBrushless), new SparkMax(10, SparkLowLevel.MotorType.kBrushless))));
     eventBus.post(new RobotStart(EventType.PRE));
     eventBus.post(new RobotStart(EventType.POST));
 
-    joystick.init();
+    controller.init();
     // Recordings initialization
     recordingManager.loadRecordings();
 
@@ -59,7 +61,7 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
     stateMachine.update();
-    joystick.init();
+    controller.init();
     dashboard.update();
     driver.setPID(
       (double)dashboard.getValue("P"),
@@ -70,7 +72,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit() {
-    joystick.init();
+    controller.init();
   }
 
   @Override
@@ -80,16 +82,13 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopInit() {
-    joystick.init();
+    controller.init();
   }
 
   @Override
   public void teleopPeriodic() {
     eventBus.post(new TeleoperatedPeriodicEvent(EventType.PRE, this));
-    if (joystick.getDirection().length() != 0)
-      driver.drive(joystick.getDirection(), joystick.getDirection(), true);
-    else
-      driver.stop();
+    driver.drive(controller.getLeftDirection(), controller.getRightDirection(), true);
 
     stateMachine.update();
     eventBus.post(new TeleoperatedPeriodicEvent(EventType.POST, this));

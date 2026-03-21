@@ -30,10 +30,10 @@ public class Joystick {
 
   public Vector2d getDirection() {
     Vector2d vector = new Vector2d(MathF.round((float) joystick.getRawAxis(1),5), MathF.round((float) joystick.getRawAxis(2), 5));
-    if (vector.length() >= 0.1)
-      return vector.normalized();
+    if (vector.length() <= 0.01)
+      return new Vector2d(0, 0);
 
-    return new Vector2d(0, 0);
+    return vector.normalized();
   }
 
   public double getSlider() {

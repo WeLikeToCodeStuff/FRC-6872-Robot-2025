@@ -54,10 +54,10 @@ public class Driver {
   }
 
   public void drive(Vector2d moveDirection, Vector2d turnDirection, boolean fieldRelative) {
-    if (moveDirection.length() <= 0.01)
-      moveDirection = new Vector2d(0, 0);
-    if (turnDirection.length() <= 0.01)
-      turnDirection = new Vector2d(0, 0);
+    if (moveDirection.length() == 0 && turnDirection.length() == 0) {
+      stop();
+      return;
+    }
 
     moveDirection = moveDirection.times(driveSpeed);
     double rotationRadians = Math.atan2(turnDirection.x, turnDirection.y);
