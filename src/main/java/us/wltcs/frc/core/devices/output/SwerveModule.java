@@ -46,6 +46,10 @@ public class SwerveModule {
   private final double driveMotorGain = 1;
   private final double wheelAngularOffset = 0;
 
+  public double getOutput() {
+    return driveMotor.getAppliedOutput();
+  }
+
   public void setPID(double p, double i, double d) {
     drivingPIDController.setPID(p, i, d);
   }

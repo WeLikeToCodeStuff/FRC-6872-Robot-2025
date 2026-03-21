@@ -1,5 +1,6 @@
 package us.wltcs.frc.core;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -17,6 +18,10 @@ public class SwerveDriver {
   private final SwerveModule frontRightModule;
   private final SwerveModule rearLeftModule;
   private final SwerveModule rearRightModule;
+
+  public double getControllerOutput() {
+    return frontLeftModule.getOutput();
+  }
 
   public SwerveDriver(SwerveModule frontLeft, SwerveModule frontRight, SwerveModule rearLeft, SwerveModule rearRight) {
     frontLeftModule = frontLeft;

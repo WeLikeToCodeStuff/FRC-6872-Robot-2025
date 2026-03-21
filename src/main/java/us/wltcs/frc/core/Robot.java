@@ -54,6 +54,7 @@ public class Robot extends TimedRobot {
     dashboard.<Double>addEntry("P", 1.0);
     dashboard.<Double>addEntry("I", 1.0);
     dashboard.<Double>addEntry("D", 1.0);
+    dashboard.<Double>addEntry("MotorPower", () -> {return swerveDriver.getControllerOutput();});
   }
 
   @Override
