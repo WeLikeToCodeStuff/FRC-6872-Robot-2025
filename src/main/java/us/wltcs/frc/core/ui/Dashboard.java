@@ -1,31 +1,49 @@
 package us.wltcs.frc.core.ui;
 
-import edu.wpi.first.networktables.GenericEntry;
-import lombok.Data;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Supplier;
-import us.wltcs.frc.core.api.external.Elastic;
 
-// Elastic dashboard implementation class
-@Data
-//@AllArgsConstructor
+import edu.wpi.first.networktables.GenericEntry;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
 public class Dashboard {
-
-  //  private final List<ShuffleboardTab> tabs;
-//  private final Map<String, GenericEntry> entries;
-//  private final Map<String, Runnable> updateMap;
+  private final NetworkTableInstance inst = NetworkTableInstance.getDefault();
+  private final NetworkTable table = inst.getTable("6872 Robot");
+  private final Map<String, NetworkTableEntry> entries;
+  private final Map<String, Runnable> callbackMap;
 
   public Dashboard() {
-
+    this.entries = new HashMap<>();
+    this.callbackMap = new HashMap<>();
   }
 
-  public void initialize() {
-
+  public void update() {
+    callbackMap.forEach((key, runnable) -> {
+      setValue(entries.get(key), runnable);
+    });
   }
 
-  public <T> void addEntry(String key, GenericEntry entry, Supplier<T> supplier) {
-
+  public <T> void addEntry(String key, Supplier<T> supplier) {
+    NetworkTableEntry entry = table.getEntry(key);
+    entries.put(key, entry);
+    callbackMap.put(entry.getTopic().getName(), () -> {
+      setValue(entry, supplier.get());
+    });
   }
 
-  public <T> void addEntry(GenericEntry entry, Supplier<T> supplier) {
+  private <T> void setValue(NetworkTableEntry entry, T value) {
+    // TODO: implement more types
+    if (value instanceof Double d) entry.setDouble(d);
+    else if (value instanceof Boolean b) entry.setBoolean(b);
+    else if (value instanceof String s) entry.setString(s);
+    else if (value instanceof Integer i) entry.setInteger(i);
+    else if (value instanceof Long l) entry.setInteger(l);
+    else
+      throw new IllegalArgumentException("Unsupported dashboard type: " + value.getClass());
   }
 }

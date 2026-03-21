@@ -50,12 +50,15 @@ public class Robot extends TimedRobot {
     joystick.init();
     // Recordings initialization
     recordingManager.loadRecordings();
+
+    dashboard.addEntry("PID", () -> {return true;});
   }
 
   @Override
   public void robotPeriodic() {
     stateMachine.update();
     joystick.init();
+    dashboard.update();
   }
 
   @Override
