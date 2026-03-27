@@ -90,7 +90,7 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     eventBus.post(new TeleoperatedPeriodicEvent(EventType.PRE, this));
-    driver.drive(controller.getLeftDirection(), controller.getRightDirection(), true);
+    driver.drive(controller.getLeftDirection(), controller.getRightDirection(), true, controller.getController().getRawAxis(0), controller.getController().getRawAxis(1));
 
     stateMachine.update();
     eventBus.post(new TeleoperatedPeriodicEvent(EventType.POST, this));

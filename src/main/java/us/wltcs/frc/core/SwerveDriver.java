@@ -79,7 +79,7 @@ public class SwerveDriver {
     // );
   }
 
-  public void drive(Vector2d moveDirection, Vector2d turnDirection, boolean fieldRelative) {
+  public void drive(Vector2d moveDirection, Vector2d turnDirection, boolean fieldRelative, double vX, double vY) {
     if (moveDirection.length() == 0 && turnDirection.length() == 0) {
       stop();
       return;
@@ -87,8 +87,8 @@ public class SwerveDriver {
 
     double heading = Math.atan2(moveDirection.y, moveDirection.x);
     ChassisSpeeds desiredSpeeds = swerveDriver.swerveController.getTargetSpeeds(
-      moveDirection.x * maxDriveSpeed,
-      -moveDirection.y * maxDriveSpeed,
+      vX,
+      vY,
       heading * Math.PI,
       swerveDriver.getOdometryHeading().getRadians(),
       maxDriveSpeed
