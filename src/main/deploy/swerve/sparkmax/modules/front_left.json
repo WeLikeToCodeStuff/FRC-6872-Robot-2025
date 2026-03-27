@@ -15,12 +15,12 @@
     "canbus":  null
   },
   "encoder": {
-    "type": "attached",
+    "type": "thrifty",
     "id": 0,
     "canbus": null
   },
   "inverted": {
-    "drive": false,
+    "drive": true,
     "angle": false
   },
   "absoluteEncoderInverted": false
