@@ -22,20 +22,21 @@ public class Robot extends TimedRobot {
   private final EventBus eventBus = new EventBus();
   private final StateMachine stateMachine = new StateMachine();
   private final RecordingManager recordingManager = new RecordingManager();
+
+  @Getter
+  private Controller controller;
+  private final Dashboard dashboard = new Dashboard();
+
   private final Driver driver = new Driver(
     SwerveModules.frontLeftMotorController,
     SwerveModules.frontRightMotorController,
     SwerveModules.rearLeftMotorController,
     SwerveModules.rearRightMotorController,
-    5
+    5, dashboard
   );
 
 //  @Getter
 //  private final Camera camera = new Camera("Main", 1920, 1080);
-
-  @Getter
-  private Controller controller;
-  private final Dashboard dashboard = new Dashboard();
 
   @Override
   public void robotInit() {
@@ -51,10 +52,11 @@ public class Robot extends TimedRobot {
     // Recordings initialization
     recordingManager.loadRecordings();
 
-    dashboard.<Double>addEntry("P", 1.0);
-    dashboard.<Double>addEntry("I", 1.0);
-    dashboard.<Double>addEntry("D", 1.0);
-    dashboard.<Double>addEntry("MotorPower", () -> {return driver.getControllerOutput();});
+//    dashboard.<Double>addEntry("P", 1.0);
+//    dashboard.<Double>addEntry("I", 1.0);
+//    dashboard.<Double>addEntry("D", 1.0);
+//    dashboard.<Double>addEntry("MotorPower", () -> {return driver.getControllerOutput();});
+    dashboard.<Double>addEntry("Robot Rotation", () -> { return Math.atan2(controller.getRightDirection().y, controller.getRightDirection().x); });
   }
 
   @Override
@@ -62,11 +64,6 @@ public class Robot extends TimedRobot {
     stateMachine.update();
     controller.initialize();
     dashboard.update();
-    driver.setPID(
-      (double)dashboard.getValue("P"),
-      (double)dashboard.getValue("I"),
-      (double)dashboard.getValue("D")
-    );
   }
 
   @Override
@@ -87,7 +84,7 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     eventBus.post(new TeleoperatedPeriodicEvent(EventType.PRE, this));
-    driver.drive(controller.getLeftDirection(), controller.getRightDirection(), true);
+    driver.drive(controller.getLeftDirection(), controller.getRightDirection(), false);
 
     stateMachine.update();
     eventBus.post(new TeleoperatedPeriodicEvent(EventType.POST, this));

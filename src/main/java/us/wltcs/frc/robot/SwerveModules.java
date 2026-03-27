@@ -14,7 +14,6 @@ public class SwerveModules {
   public static final SwerveModule frontLeftMotorController = new SwerveModule(
     1,
     2,
-    0,
     new Vector2d(-chassisWidth / 2, chassisLength / 2),
     0, false
   );
@@ -22,7 +21,6 @@ public class SwerveModules {
   public static final SwerveModule frontRightMotorController = new SwerveModule(
     7,
     8,
-    3,
     new Vector2d(chassisWidth / 2, chassisLength / 2),
     0, false
   );
@@ -30,7 +28,6 @@ public class SwerveModules {
   public static final SwerveModule rearLeftMotorController = new SwerveModule(
     3,
           4,
-    1,
     new Vector2d(-chassisWidth / 2, -chassisLength / 2),
     0, false
   );
@@ -38,7 +35,6 @@ public class SwerveModules {
   public static final SwerveModule rearRightMotorController = new SwerveModule(
     5,
           6,
-    2,
     new Vector2d(chassisWidth / 2, -chassisLength / 2),
     0, false
   );

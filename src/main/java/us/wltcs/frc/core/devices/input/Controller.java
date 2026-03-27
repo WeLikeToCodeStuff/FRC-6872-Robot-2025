@@ -46,7 +46,7 @@ public class Controller {
       MathF.round((float) controller.getRawAxis(1), 5)
     );
 
-    if (vector.length() <= 0.01)
+    if (vector.length() <= 0.1)
       return new Vector2d(0, 0);
 
     return vector.normalized();
@@ -59,7 +59,7 @@ public class Controller {
       MathF.round((float) controller.getRawAxis(5), 5)
     );
 
-    if (vector.length() <= 0.01)
+    if (vector.length() <= 0.1)
       return new Vector2d(0, 0);
 
     return vector.normalized();

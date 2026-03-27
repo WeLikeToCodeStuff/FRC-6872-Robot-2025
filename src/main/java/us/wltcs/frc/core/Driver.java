@@ -8,6 +8,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import us.wltcs.frc.core.devices.input.Gyroscope;
 import us.wltcs.frc.core.devices.output.SwerveModule;
 import us.wltcs.frc.core.math.vector2.Vector2d;
+import us.wltcs.frc.core.ui.Dashboard;
 import us.wltcs.frc.robot.SwerveModules;
 
 public class Driver {
@@ -21,6 +22,8 @@ public class Driver {
   private final SwerveModule rearRightModule;
   private final float driveSpeed;
 
+  private final Dashboard dashboard;
+
   public double getControllerOutput() {
     return frontLeftModule.getOutput();
   }
@@ -30,15 +33,17 @@ public class Driver {
     SwerveModule frontRight,
     SwerveModule rearLeft,
     SwerveModule rearRight,
-    float driveSpeed
+    float driveSpeed,
+    Dashboard dashboard
   ) {
+    this.dashboard = dashboard;
     this.driveSpeed = driveSpeed;
     if (Robot.isSimulation() && (frontLeft == null || frontRight == null || rearLeft == null || rearRight == null)) {
       // In simulation, we can create dummy modules if any of them are null to avoid null pointer exceptions.
-      this.frontLeftModule = new SwerveModule(0, 0, 0, new Vector2d(-SwerveModules.chassisWidth / 2, SwerveModules.chassisLength / 2), 0, false);
-      this.frontRightModule = new SwerveModule(0, 0, 0, new Vector2d(SwerveModules.chassisWidth / 2, SwerveModules.chassisLength / 2), 0, false);
-      this.rearLeftModule = new SwerveModule(0, 0, 0, new Vector2d(-SwerveModules.chassisWidth / 2, -SwerveModules.chassisLength / 2), 0, false);
-      this.rearRightModule = new SwerveModule(0, 0, 0, new Vector2d(SwerveModules.chassisWidth / 2, -SwerveModules.chassisLength / 2), 0, false);
+      this.frontLeftModule = new SwerveModule(0, 0, new Vector2d(-SwerveModules.chassisWidth / 2, SwerveModules.chassisLength / 2), 0, false);
+      this.frontRightModule = new SwerveModule(0, 0, new Vector2d(SwerveModules.chassisWidth / 2, SwerveModules.chassisLength / 2), 0, false);
+      this.rearLeftModule = new SwerveModule(0, 0, new Vector2d(-SwerveModules.chassisWidth / 2, -SwerveModules.chassisLength / 2), 0, false);
+      this.rearRightModule = new SwerveModule(0, 0, new Vector2d(SwerveModules.chassisWidth / 2, -SwerveModules.chassisLength / 2), 0, false);
     } else {
       this.frontLeftModule = frontLeft;
       this.frontRightModule = frontRight;
@@ -60,21 +65,27 @@ public class Driver {
     }
 
     moveDirection = moveDirection.times(driveSpeed);
-    double rotationRadians = Math.atan2(turnDirection.x, turnDirection.y);
+    double rotationRadians = Math.atan2(turnDirection.y, turnDirection.x);
 
     SwerveModuleState[] states;
-    if(fieldRelative)
+    if (fieldRelative)
       states = kinematics.toSwerveModuleStates(ChassisSpeeds.fromFieldRelativeSpeeds(
         moveDirection.x, moveDirection.y, rotationRadians, Rotation2d.fromDegrees(-gyroscope.getDegrees())
       ));
     else
-      states = kinematics.toSwerveModuleStates(new ChassisSpeeds(moveDirection.x, moveDirection.y, rotationRadians));
+      states = kinematics.toSwerveModuleStates(new ChassisSpeeds(moveDirection.y, moveDirection.x, rotationRadians));
 
-    SwerveDriveKinematics.desaturateWheelSpeeds(states, driveSpeed);
+//    SwerveDriveKinematics.desaturateWheelSpeeds(states, driveSpeed);
     frontLeftModule.setState(states[0], driveSpeed);
     frontRightModule.setState(states[1], driveSpeed);
     rearLeftModule.setState(states[2], driveSpeed);
     rearRightModule.setState(states[3], driveSpeed);
+
+    System.out.println(states[1].angle);
+//    dashboard.<Double>addEntry("FrontLeft", states[0].angle);
+//    dashboard.<Double>addEntry("FrontRight", 0.0);
+//    dashboard.<Double>addEntry("BackLeft", 0.0);
+//    dashboard.<Double>addEntry("BackRight", 0.0);
   }
 
   public void setPID(double p, double i, double d) {
