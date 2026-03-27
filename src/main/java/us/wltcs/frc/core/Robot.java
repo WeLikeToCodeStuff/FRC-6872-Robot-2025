@@ -2,6 +2,8 @@ package us.wltcs.frc.core;
 
 import com.revrobotics.spark.SparkLowLevel;
 import com.revrobotics.spark.SparkMax;
+
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import lombok.Getter;
 import us.wltcs.frc.core.api.event.*;
@@ -41,6 +43,10 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
     this.controller = new Controller(0);
+
+    if (isSimulation()) {
+      DriverStation.silenceJoystickConnectionWarning(true);
+    }
 
     //    Context.program.log(Levels.INFO, String.format("Configured %s as primary controller", joystick.getJoystick().getName()));
     eventBus.subscribe(this);
