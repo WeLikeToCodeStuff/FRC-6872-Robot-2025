@@ -21,7 +21,7 @@ import java.io.IOException;
 import java.util.List;
 
 public class SwerveDriver {
-  private final Gyroscope gyroscope = new Gyroscope();
+  // private final Gyroscope gyroscope = new Gyroscope();
 
   private SwerveDriveKinematics kinematics;
 
@@ -83,16 +83,16 @@ public class SwerveDriver {
     // );
   }
 
-  public void drive(Vector2d moveDirection, Vector2d turnDirection, boolean fieldRelative, double vX, double vY) {
+  public void drive(Vector2d moveDirection, Vector2d turnDirection, boolean fieldRelative) {
     if (moveDirection.length() == 0 && turnDirection.length() == 0) {
       stop();
       return;
     }
 
-    double heading = Math.atan2(moveDirection.y, moveDirection.x);
+    double heading = Math.atan2(moveDirection.getX(), -moveDirection.getY());
     ChassisSpeeds desiredSpeeds = swerveDriver.swerveController.getTargetSpeeds(
-      vX,
-      vY,
+      -moveDirection.getY(),
+      moveDirection.getX(),
       heading * Math.PI,
       swerveDriver.getOdometryHeading().getRadians(),
       maxDriveSpeed

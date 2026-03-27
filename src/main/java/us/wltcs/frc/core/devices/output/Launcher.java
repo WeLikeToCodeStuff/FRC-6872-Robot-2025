@@ -6,23 +6,20 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
+import edu.wpi.first.wpilibj.motorcontrol.PWMTalonSRX;
+
 public class Launcher {
-    private final SparkMax leftLauncherMotor;
+    private final PWMTalonSRX leftLauncherMotor;
+    private final PWMTalonSRX rightLauncherMotor;
 
-
-    private final SparkMax rightLauncherMotor;
-
-    public Launcher(SparkMax leftLauncherMotor, SparkMax rightLauncherMotor) {
+    public Launcher(PWMTalonSRX leftLauncherMotor, PWMTalonSRX rightLauncherMotor) {
         this.leftLauncherMotor = leftLauncherMotor;
         this.rightLauncherMotor = rightLauncherMotor;
-        SparkMaxConfig config = new SparkMaxConfig();
-        config.follow(leftLauncherMotor.getDeviceId());
-        config.inverted(true);
-        this.rightLauncherMotor.configure(config, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
     }
 
     public Launcher setSpeed(double speed) {
         leftLauncherMotor.set(speed);
+        rightLauncherMotor.set(speed);
         return this;
     }
 }
