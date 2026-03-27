@@ -9,6 +9,7 @@ import swervelib.SwerveController;
 import swervelib.SwerveDrive;
 import swervelib.math.SwerveMath;
 import swervelib.parser.SwerveParser;
+import swervelib.telemetry.SwerveDriveTelemetry;
 import us.wltcs.frc.core.devices.input.Gyroscope;
 import us.wltcs.frc.core.devices.output.SwerveModule;
 import us.wltcs.frc.core.math.vector2.Vector2d;
@@ -52,6 +53,9 @@ public class SwerveDriver {
   ) {
     this.dashboard = dashboard;
     this.maxDriveSpeed = driveSpeed;
+
+    SwerveDriveTelemetry.verbosity = SwerveDriveTelemetry.TelemetryVerbosity.HIGH;
+
     this.swerveJsonDirectory = new File(Filesystem.getDeployDirectory(), "swerve/sparkmax");
     try {
       this.swerveDriver = new SwerveParser(swerveJsonDirectory).createSwerveDrive(maxDriveSpeed);
