@@ -1,17 +1,20 @@
 package us.wltcs.frc.core;
 
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.Filesystem;
+import swervelib.SwerveDrive;
+import swervelib.parser.SwerveParser;
 import us.wltcs.frc.core.devices.input.Gyroscope;
 import us.wltcs.frc.core.devices.output.SwerveModule;
 import us.wltcs.frc.core.math.vector2.Vector2d;
 import us.wltcs.frc.core.ui.Dashboard;
 import us.wltcs.frc.robot.SwerveModules;
 
-public class Driver {
+import java.io.File;
+import java.io.IOException;
+
+public class SwerveDriver {
   private final Gyroscope gyroscope = new Gyroscope();
 
   private final SwerveDriveKinematics kinematics;
@@ -20,7 +23,12 @@ public class Driver {
   private final SwerveModule frontRightModule;
   private final SwerveModule rearLeftModule;
   private final SwerveModule rearRightModule;
-  private final float driveSpeed;
+
+  // In meters
+  private final float maxDriveSpeed;
+
+  private final File swerveJsonDirectory;
+  private final SwerveDrive swerveDriver;
 
   private final Dashboard dashboard;
 
@@ -28,16 +36,23 @@ public class Driver {
     return frontLeftModule.getOutput();
   }
 
-  public Driver(
-    SwerveModule frontLeft,
-    SwerveModule frontRight,
-    SwerveModule rearLeft,
-    SwerveModule rearRight,
-    float driveSpeed,
-    Dashboard dashboard
+  public SwerveDriver(
+          SwerveModule frontLeft,
+          SwerveModule frontRight,
+          SwerveModule rearLeft,
+          SwerveModule rearRight,
+          float driveSpeed,
+          Dashboard dashboard
   ) {
     this.dashboard = dashboard;
-    this.driveSpeed = driveSpeed;
+    this.maxDriveSpeed = driveSpeed;
+    this.swerveJsonDirectory = new File(Filesystem.getDeployDirectory(), "swerve");
+    try {
+      this.swerveDriver = new SwerveParser(swerveJsonDirectory).createSwerveDrive(maxDriveSpeed);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+
     if (Robot.isSimulation() && (frontLeft == null || frontRight == null || rearLeft == null || rearRight == null)) {
       // In simulation, we can create dummy modules if any of them are null to avoid null pointer exceptions.
       this.frontLeftModule = new SwerveModule(0, 0, new Vector2d(-SwerveModules.chassisWidth / 2, SwerveModules.chassisLength / 2), 0, false);
@@ -64,35 +79,14 @@ public class Driver {
       return;
     }
 
-    moveDirection = moveDirection.times(driveSpeed);
     double rotationRadians = Math.atan2(turnDirection.y, turnDirection.x);
 
-    SwerveModuleState[] states;
-    if (fieldRelative)
-      states = kinematics.toSwerveModuleStates(ChassisSpeeds.fromFieldRelativeSpeeds(
-        moveDirection.x, moveDirection.y, rotationRadians, Rotation2d.fromDegrees(-gyroscope.getDegrees())
-      ));
-    else
-      states = kinematics.toSwerveModuleStates(new ChassisSpeeds(moveDirection.y, moveDirection.x, rotationRadians));
-
-//    SwerveDriveKinematics.desaturateWheelSpeeds(states, driveSpeed);
-    frontLeftModule.setState(states[0], driveSpeed);
-    frontRightModule.setState(states[1], driveSpeed);
-    rearLeftModule.setState(states[2], driveSpeed);
-    rearRightModule.setState(states[3], driveSpeed);
-
-    System.out.println(states[1].angle);
-//    dashboard.<Double>addEntry("FrontLeft", states[0].angle);
-//    dashboard.<Double>addEntry("FrontRight", 0.0);
-//    dashboard.<Double>addEntry("BackLeft", 0.0);
-//    dashboard.<Double>addEntry("BackRight", 0.0);
-  }
-
-  public void setPID(double p, double i, double d) {
-    frontLeftModule.setPID(p, i, d);
-    frontRightModule.setPID(p, i, d);
-    rearLeftModule.setPID(p, i, d);
-    rearRightModule.setPID(p, i, d);
+    swerveDriver.drive(
+      new Translation2d(moveDirection.x * swerveDriver.getMaximumChassisVelocity(), moveDirection.y * swerveDriver.getMaximumChassisVelocity()),
+      rotationRadians * swerveDriver.getMaximumChassisAngularVelocity(),
+      fieldRelative,
+      false
+    );
   }
 
   public void stop() {

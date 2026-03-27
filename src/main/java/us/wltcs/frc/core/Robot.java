@@ -27,7 +27,7 @@ public class Robot extends TimedRobot {
   private Controller controller;
   private final Dashboard dashboard = new Dashboard();
 
-  private final Driver driver = new Driver(
+  private final SwerveDriver driver = new SwerveDriver(
     SwerveModules.frontLeftMotorController,
     SwerveModules.frontRightMotorController,
     SwerveModules.rearLeftMotorController,
@@ -84,7 +84,7 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     eventBus.post(new TeleoperatedPeriodicEvent(EventType.PRE, this));
-    driver.drive(controller.getLeftDirection(), controller.getRightDirection(), false);
+    driver.drive(controller.getLeftDirection(), controller.getRightDirection(), true);
 
     stateMachine.update();
     eventBus.post(new TeleoperatedPeriodicEvent(EventType.POST, this));
