@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.Joystick.AxisType;
 import lombok.Getter;
 import us.wltcs.frc.core.logging.Context;
 import us.wltcs.frc.core.math.MathF;
@@ -54,10 +55,16 @@ public class Controller {
 
   // Vector direction of right joystick
   public Vector2d getRightDirection() {
-    Vector2d vector = new Vector2d(
-      MathF.round((float) controller.getRawAxis(4),5),
-      MathF.round((float) controller.getRawAxis(5), 5)
-    );
+    Vector2d vector;
+    try {
+      vector = new Vector2d(
+        MathF.round((float) controller.getRawAxis(4), 5),
+        MathF.round((float) controller.getRawAxis(5), 5)
+      );
+    } catch (Exception e) {
+      Context.movement.logError("Attempted to get right joystick direction, but controller does not have right joystick axes");
+      return new Vector2d(0, 0);
+    }
 
     if (vector.length() <= 0.1)
       return new Vector2d(0, 0);
