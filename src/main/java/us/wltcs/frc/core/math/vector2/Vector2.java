@@ -23,6 +23,10 @@ public interface Vector2 {
 
   default Vector2d normalized() {
     Vector2d vector = new Vector2d(getX(), getY());
+
+    if (vector.length() == 0)
+      return new Vector2d(0, 0);
+
     return vector.div(length());
   }
 }

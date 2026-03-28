@@ -47,7 +47,7 @@ public class SwerveDriver {
           // SwerveModule frontLeft,
           // SwerveModule frontRight,
           // SwerveModule rearLeft,
-          // SwerveModule rearRight,
+          // SwerveModule rearRight,x
           float driveSpeed,
           Dashboard dashboard
   ) {
@@ -62,39 +62,26 @@ public class SwerveDriver {
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
-
-    // if (Robot.isSimulation() && (frontLeft == null || frontRight == null || rearLeft == null || rearRight == null)) {
-    //   // In simulation, we can create dummy modules if any of them are null to avoid null pointer exceptions.
-    //   this.frontLeftModule = new SwerveModule(0, 0, new Vector2d(-SwerveModules.chassisWidth / 2, SwerveModules.chassisLength / 2), 0, false);
-    //   this.frontRightModule = new SwerveModule(0, 0, new Vector2d(SwerveModules.chassisWidth / 2, SwerveModules.chassisLength / 2), 0, false);
-    //   this.rearLeftModule = new SwerveModule(0, 0, new Vector2d(-SwerveModules.chassisWidth / 2, -SwerveModules.chassisLength / 2), 0, false);
-    //   this.rearRightModule = new SwerveModule(0, 0, new Vector2d(SwerveModules.chassisWidth / 2, -SwerveModules.chassisLength / 2), 0, false);
-    // } else {
-    //   this.frontLeftModule = frontLeft;
-    //   this.frontRightModule = frontRight;
-    //   this.rearLeftModule = rearLeft;
-    //   this.rearRightModule = rearRight;
-    // }
-    // kinematics = new SwerveDriveKinematics(
-    //   new Translation2d(frontLeft.getPosition().x, frontLeft.getPosition().y),
-    //   new Translation2d(frontRight.getPosition().x, frontRight.getPosition().y),
-    //   new Translation2d(rearLeft.getPosition().x, rearLeft.getPosition().y),
-    //   new Translation2d(rearRight.getPosition().x, rearRight.getPosition().y)
-    // );
   }
 
-  public void drive(Vector2d moveDirection, Vector2d turnDirection, boolean fieldRelative, double vX, double vY) {
-    if (moveDirection.length() == 0 && turnDirection.length() == 0) {
+  public void drive(Vector2d inputMovementDirection, Vector2d inputTurnDirection, boolean fieldRelative, double vX, double vY) {
+    if (inputMovementDirection.length() == 0 && inputTurnDirection.length() == 0) {
       stop();
       return;
     }
 
-    double heading = Math.atan2(moveDirection.y, moveDirection.x);
+    double robotRadians = swerveDriver.getOdometryHeading().getRadians();
+    System.out.println(robotRadians);
+    Vector2d robotForward = new Vector2d(Math.cos(robotRadians), Math.sin(robotRadians));
+    Vector2d robotLeft = new Vector2d(robotForward.y, -robotForward.x);
+    Vector2d moveDirection = robotLeft.times(inputMovementDirection.x).plus(robotForward.times(-inputMovementDirection.y)).normalized();
+//    Vector2d moveDirection = inputMovementDirection;
+
     ChassisSpeeds desiredSpeeds = swerveDriver.swerveController.getTargetSpeeds(
-      vX,
-      vY,
-      heading * Math.PI,
-      swerveDriver.getOdometryHeading().getRadians(),
+      moveDirection.x, moveDirection.y,
+//0,
+      Math.atan2(inputTurnDirection.y, inputTurnDirection.x),
+      robotRadians,
       maxDriveSpeed
     );
 

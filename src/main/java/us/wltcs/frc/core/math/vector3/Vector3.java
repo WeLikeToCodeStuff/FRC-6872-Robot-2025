@@ -25,6 +25,10 @@ public interface Vector3 {
 
   default Vector3d normalized() {
     Vector3d vector = new Vector3d(getX(), getY(), getZ());
+
+    if (vector.length() == 0)
+      return new Vector3d(0, 0, 0);
+
     return vector.div(length());
   }
 }
