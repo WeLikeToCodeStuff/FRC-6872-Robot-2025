@@ -19,7 +19,7 @@ public class Launcher {
 
     public Launcher setSpeed(double speed) {
         leftLauncherMotor.set(speed);
-        rightLauncherMotor.set(speed);
+        rightLauncherMotor.set(-speed);
         return this;
     }
 }
