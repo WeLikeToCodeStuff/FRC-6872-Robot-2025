@@ -21,14 +21,7 @@ import java.io.IOException;
 import java.util.List;
 
 public class SwerveDriver {
-  private final Gyroscope gyroscope = new Gyroscope();
-
-  private SwerveDriveKinematics kinematics;
-
-  // private final SwerveModule frontLeftModule;
-  // private final SwerveModule frontRightModule;
-  // private final SwerveModule rearLeftModule;
-  // private final SwerveModule rearRightModule;
+//  private final Gyroscope gyroscope = new Gyroscope();
 
   // In meters
   private final float maxDriveSpeed;
@@ -71,16 +64,18 @@ public class SwerveDriver {
     }
 
     double robotRadians = swerveDriver.getOdometryHeading().getRadians();
-    System.out.println(robotRadians);
+
+    double turnRadians = robotRadians;
+    if (inputTurnDirection.length() != 0)
+      turnRadians = Math.atan2(-inputTurnDirection.y, inputTurnDirection.x) - Math.PI / 2;
+
     Vector2d robotForward = new Vector2d(Math.cos(robotRadians), Math.sin(robotRadians));
     Vector2d robotLeft = new Vector2d(robotForward.y, -robotForward.x);
     Vector2d moveDirection = robotLeft.times(inputMovementDirection.x).plus(robotForward.times(-inputMovementDirection.y)).normalized();
-//    Vector2d moveDirection = inputMovementDirection;
 
     ChassisSpeeds desiredSpeeds = swerveDriver.swerveController.getTargetSpeeds(
       moveDirection.x, moveDirection.y,
-//0,
-      Math.atan2(inputTurnDirection.y, inputTurnDirection.x),
+      turnRadians,
       robotRadians,
       maxDriveSpeed
     );
@@ -96,9 +91,5 @@ public class SwerveDriver {
 
   public void stop() {
     swerveDriver.drive(new Translation2d(0, 0), 0, true, false);
-    // frontLeftModule.stop();
-    // frontRightModule.stop();
-    // rearLeftModule.stop();
-    // rearRightModule.stop();
   }
 }
