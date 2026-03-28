@@ -64,7 +64,7 @@ public class SwerveDriver {
     }
   }
 
-  public void drive(Vector2d inputMovementDirection, Vector2d inputTurnDirection, boolean fieldRelative, double vX, double vY) {
+  public void drive(Vector2d inputMovementDirection, Vector2d inputTurnDirection, boolean fieldRelative) {
     if (inputMovementDirection.length() == 0 && inputTurnDirection.length() == 0) {
       stop();
       return;
