@@ -5,6 +5,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.networktables.GenericPublisher;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Filesystem;
 import swervelib.SwerveController;
@@ -33,65 +34,38 @@ public class SwerveDriver {
 
   private final Dashboard dashboard;
 
-  public double getControllerOutput() {
-    return 0;
-    // return frontLeftModule.getOutput();
-  }
-
-  public SwerveDriver(
-          // SwerveModule frontLeft,
-          // SwerveModule frontRight,
-          // SwerveModule rearLeft,
-          // SwerveModule rearRight,x
-          float driveSpeed,
-          Dashboard dashboard
-  ) {
+  public SwerveDriver(float driveSpeed, Dashboard dashboard) {
     this.dashboard = dashboard;
     this.maxDriveSpeed = driveSpeed;
 
     SwerveDriveTelemetry.verbosity = SwerveDriveTelemetry.TelemetryVerbosity.HIGH;
-
     this.swerveJsonDirectory = new File(Filesystem.getDeployDirectory(), "swerve/sparkmax");
     try {
       this.swerveDriver = new SwerveParser(swerveJsonDirectory).createSwerveDrive(maxDriveSpeed);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
+
+    swerveDriver.setCosineCompensator(false);
+    swerveDriver.setHeadingCorrection(false);
+    swerveDriver.zeroGyro();
   }
 
-  public void drive(Vector2d inputMovementDirection, Vector2d inputTurnDirection, boolean fieldRelative) {
-    if (inputMovementDirection.length() == 0 && inputTurnDirection.length() == 0) {
-      stop();
-      return;
-    }
-
+  public void drive(Vector2d movementInput, Vector2d rotationInput, boolean fieldRelative) {
     double robotRadians = swerveDriver.getOdometryHeading().getRadians();
 
     double turnRadians = robotRadians;
-    if (inputTurnDirection.length() != 0)
-      turnRadians = Math.atan2(-inputTurnDirection.y, inputTurnDirection.x) - Math.PI / 2;
+    if (movementInput.length() != 0)
+      turnRadians = Math.atan2(-rotationInput.y, rotationInput.x) - Math.PI / 2;
 
-    Vector2d robotForward = new Vector2d(Math.cos(robotRadians), Math.sin(robotRadians));
-    Vector2d robotLeft = new Vector2d(robotForward.y, -robotForward.x);
-    Vector2d moveDirection = robotLeft.times(inputMovementDirection.x).plus(robotForward.times(-inputMovementDirection.y)).normalized();
 
     ChassisSpeeds desiredSpeeds = swerveDriver.swerveController.getTargetSpeeds(
-      moveDirection.x, moveDirection.y,
-      turnRadians,
-      robotRadians,
+      movementInput.x, movementInput.y,
+      turnRadians, robotRadians,
       maxDriveSpeed
     );
 
-    Translation2d translation = SwerveController.getTranslation2d(desiredSpeeds);
-    swerveDriver.drive(
-      translation,
-      desiredSpeeds.omegaRadiansPerSecond,
-      true,
-      false
-    );
-  }
 
-  public void stop() {
-    swerveDriver.drive(new Translation2d(0, 0), 0, true, false);
+    swerveDriver.drive(new Translation2d(movementInput.x, movementInput.y), robotRadians, true, false);
   }
 }
