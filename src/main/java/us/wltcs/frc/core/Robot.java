@@ -30,11 +30,7 @@ public class Robot extends TimedRobot {
   private final Dashboard dashboard = new Dashboard();
 
   private final SwerveDriver driver = new SwerveDriver(
-    // SwerveModules.frontLeftMotorController,
-    // SwerveModules.frontRightMotorController,
-    // SwerveModules.rearLeftMotorController,
-    // SwerveModules.rearRightMotorController,
-    5, dashboard
+    5, 8, dashboard
   );
 
 //  @Getter
