@@ -14,9 +14,15 @@ public class LauncherListener {
 
   @EventTarget
   public final EventListener<TeleoperatedPeriodicEvent> launcherListener = event -> {
-    if (event.getRobot().getController().getController().getRawButton(1))
-      this.launcher.setSpeed(1);
-    else
+    if (!event.getRobot().getController().buttonPressed(5) || !event.getRobot().getController().getController().getRawButton(5))
       this.launcher.setSpeed(0);
+
+    if (event.getRobot().getController().buttonPressed(5)) {
+        this.launcher.setSpeed(1);
+    }
+
+    if (event.getRobot().getController().buttonPressed(6)) {
+        this.launcher.setSpeed(-1);
+    }
   };
 }
