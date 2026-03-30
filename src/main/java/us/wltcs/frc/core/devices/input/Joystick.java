@@ -9,23 +9,11 @@ import us.wltcs.frc.core.math.vector2.Vector2d;
 
 // Class for the Logitech extreme 3d pro joystick
 public class Joystick {
-  private final Map<Integer, Boolean> buttons = new HashMap<>();
-
   @Getter
   private final edu.wpi.first.wpilibj.Joystick joystick;
 
   public Joystick(int port) {
     this.joystick = new edu.wpi.first.wpilibj.Joystick(port);
-  }
-
-  public void init() {
-    for (int i = 1; i <= this.joystick.getButtonCount(); i++) {
-      try {
-        buttons.put(i, joystick.getRawButton(i));
-      } catch (Exception e) {
-        Context.movement.logError("Invalid button ID %s", i);
-      }
-    }
   }
 
   public Vector2d getDirection() {
@@ -41,11 +29,11 @@ public class Joystick {
   }
 
   public boolean buttonPressed(int button) {
-    if (button > buttons.size()) {
+    if (button > this.joystick.getButtonCount()) {
       Context.movement.logError("Attempted to get an out of range button id of %s", button);
       return false;
     }
 
-    return buttons.get(button);
+    return joystick.getRawButton(button);
   }
 }

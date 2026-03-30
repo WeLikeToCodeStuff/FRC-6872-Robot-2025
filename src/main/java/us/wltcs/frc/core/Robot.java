@@ -1,47 +1,37 @@
 package us.wltcs.frc.core;
 
-import com.revrobotics.spark.SparkLowLevel;
-import com.revrobotics.spark.SparkMax;
-
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import lombok.Getter;
 import us.wltcs.frc.core.api.event.*;
 import us.wltcs.frc.core.autonomous.RecordingManager;
 import us.wltcs.frc.core.devices.input.Controller;
-import us.wltcs.frc.core.devices.output.Launcher;
-import us.wltcs.frc.core.ui.Dashboard;
-import us.wltcs.frc.robot.SwerveModules;
+import us.wltcs.frc.core.logging.Context;
+import us.wltcs.frc.core.math.vector2.Vector2d;
+import us.wltcs.frc.core.ui.NetworkTables;
 import us.wltcs.frc.robot.events.RobotStart;
 import us.wltcs.frc.core.statemachine.StateMachine;
 import us.wltcs.frc.robot.events.TeleoperatedPeriodicEvent;
-import us.wltcs.frc.robot.listeners.LauncherListener;
 
 // Robot class defining all the behaviour and actions of the robot
 // Learn more about the TimedRobot class here:
 // https://austinshalit.github.io/allwpilib/allwpilib/docs/release/java/edu/wpi/first/wpilibj/TimedRobot.html
 public class Robot extends TimedRobot {
   private final EventBus eventBus = new EventBus();
+  private final NetworkTables networkTables = new NetworkTables();
+
   private final StateMachine stateMachine = new StateMachine();
   private final RecordingManager recordingManager = new RecordingManager();
 
+  private final SwerveDriver swerveDriver = new SwerveDriver(5, 5, new Vector2d(5, 5));
+
   @Getter
   private Controller controller;
-  private final Dashboard dashboard = new Dashboard();
-
-  private final SwerveDriver driver = new SwerveDriver(
-    5, 8, dashboard
-  );
-
-//  @Getter
-//  private final Camera camera = new Camera("Main", 1920, 1080);
 
   @Override
   public void robotInit() {
-    this.controller = new Controller(0);
-
     if (isSimulation()) {
-      DriverStation.silenceJoystickConnectionWarning(true);
+//      DriverStation.silenceJoystickConnectionWarning(true);
     }
 
     //    Context.program.log(Levels.INFO, String.format("Configured %s as primary controller", joystick.getJoystick().getName()));
@@ -50,27 +40,19 @@ public class Robot extends TimedRobot {
     eventBus.post(new RobotStart(EventType.PRE));
     eventBus.post(new RobotStart(EventType.POST));
 
-    controller.initialize();
     // Recordings initialization
     recordingManager.loadRecordings();
-
-//    dashboard.<Double>addEntry("P", 1.0);
-//    dashboard.<Double>addEntry("I", 1.0);
-//    dashboard.<Double>addEntry("D", 1.0);
-//    dashboard.<Double>addEntry("MotorPower", () -> {return driver.getControllerOutput();});
-    dashboard.<Double>addEntry("Robot Rotation", () -> { return Math.atan2(controller.getRightDirection().y, controller.getRightDirection().x); });
+    controller =  new Controller(0);
   }
 
   @Override
   public void robotPeriodic() {
     stateMachine.update();
-    controller.initialize();
-    dashboard.update();
+    networkTables.update();
   }
 
   @Override
   public void autonomousInit() {
-    controller.initialize();
   }
 
   @Override
@@ -80,13 +62,12 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopInit() {
-    controller.initialize();
   }
 
   @Override
   public void teleopPeriodic() {
     eventBus.post(new TeleoperatedPeriodicEvent(EventType.PRE, this));
-    driver.drive(controller.getLeftDirection(), controller.getRightDirection(), true);
+    swerveDriver.drive(controller.getLeftDirection(), controller.getRightDirection(), true);
 
     stateMachine.update();
     eventBus.post(new TeleoperatedPeriodicEvent(EventType.POST, this));

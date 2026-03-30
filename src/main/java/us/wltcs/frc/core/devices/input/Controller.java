@@ -12,8 +12,6 @@ import us.wltcs.frc.core.math.vector2.Vector2d;
 
 // Class for the Xbox 360, Xbox One, or Logitech F310 controllers
 public class Controller {
-  private final Map<Integer, Boolean> buttons = new HashMap<>();
-
   @Getter
   private final XboxController controller;
 
@@ -21,23 +19,13 @@ public class Controller {
     this.controller = new XboxController(port);
   }
 
-  public void initialize() {
-    for (int i = 1; i <= this.controller.getButtonCount(); i++) {
-      try {
-        buttons.put(i, controller.getRawButton(i));
-      } catch (Exception e) {
-        Context.movement.logError("Invalid button ID %s", i);
-      }
-    }
-  }
-
   public boolean buttonPressed(int button) {
-    if (button > buttons.size()) {
+    if (button > this.controller.getButtonCount()) {
       Context.movement.logError("Attempted to get an out of range button id of %s", button);
       return false;
     }
 
-    return buttons.get(button);
+    return controller.getRawButton(button);
   }
 
   // Vector direction of left joystick

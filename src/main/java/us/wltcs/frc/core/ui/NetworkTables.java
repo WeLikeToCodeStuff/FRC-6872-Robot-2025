@@ -7,13 +7,13 @@ import java.util.function.Supplier;
 
 import edu.wpi.first.networktables.*;
 
-public class Dashboard {
+public class NetworkTables {
   private final NetworkTableInstance inst = NetworkTableInstance.getDefault();
   private final NetworkTable table = inst.getTable("Robot");
   private final Map<String, NetworkTableEntry> entries;
   private final Map<String, Callable<?>> callbackMap;
 
-  public Dashboard() {
+  public NetworkTables() {
     this.entries = new HashMap<>();
     this.callbackMap = new HashMap<>();
   }
@@ -35,7 +35,7 @@ public class Dashboard {
     setValue(entry, value);
   }
 
-  // This function adds a callback function to call periodically
+  // This function adds an entry along with a callback function to call periodically
   public <T> void addEntry(String key, Supplier<T> supplier) {
     NetworkTableEntry entry = table.getEntry(key);
     entries.put(key, entry);
