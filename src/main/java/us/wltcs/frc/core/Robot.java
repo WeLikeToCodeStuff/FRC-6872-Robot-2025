@@ -2,16 +2,18 @@ package us.wltcs.frc.core;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.motorcontrol.PWMTalonSRX;
 import lombok.Getter;
 import us.wltcs.frc.core.api.event.*;
 import us.wltcs.frc.core.autonomous.RecordingManager;
 import us.wltcs.frc.core.devices.input.Controller;
-import us.wltcs.frc.core.logging.Context;
+import us.wltcs.frc.core.devices.output.Launcher;
 import us.wltcs.frc.core.math.vector2.Vector2d;
 import us.wltcs.frc.core.ui.NetworkTables;
 import us.wltcs.frc.robot.events.RobotStart;
 import us.wltcs.frc.core.statemachine.StateMachine;
 import us.wltcs.frc.robot.events.TeleoperatedPeriodicEvent;
+import us.wltcs.frc.robot.listeners.LauncherListener;
 
 // Robot class defining all the behaviour and actions of the robot
 // Learn more about the TimedRobot class here:
@@ -31,12 +33,11 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
     if (isSimulation()) {
-//      DriverStation.silenceJoystickConnectionWarning(true);
+     DriverStation.silenceJoystickConnectionWarning(true);
     }
 
-    //    Context.program.log(Levels.INFO, String.format("Configured %s as primary controller", joystick.getJoystick().getName()));
     eventBus.subscribe(this);
-//    eventBus.subscribe(new LauncherListener(new Launcher(new SparkMax(9, SparkLowLevel.MotorType.kBrushless), new SparkMax(10, SparkLowLevel.MotorType.kBrushless))));
+    eventBus.subscribe(new LauncherListener(new Launcher(new PWMTalonSRX(1), new PWMTalonSRX(2))));
     eventBus.post(new RobotStart(EventType.PRE));
     eventBus.post(new RobotStart(EventType.POST));
 
