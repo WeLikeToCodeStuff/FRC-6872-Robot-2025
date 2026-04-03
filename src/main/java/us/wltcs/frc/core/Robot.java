@@ -29,12 +29,14 @@ import us.wltcs.frc.robot.listeners.LauncherListener;
 // https://austinshalit.github.io/allwpilib/allwpilib/docs/release/java/edu/wpi/first/wpilibj/TimedRobot.html
 public class Robot extends TimedRobot {
   private final EventBus eventBus = new EventBus();
+
+  @Getter
   private final NetworkTables networkTables = new NetworkTables();
 
   private final StateMachine stateMachine = new StateMachine();
   private final RecordingManager recordingManager = new RecordingManager();
 
-  private final SwerveDriver swerveDriver = new SwerveDriver(5, 5, new Vector2d(5, 5));
+  private final SwerveDriver swerveDriver = new SwerveDriver(10, 10, new Vector2d(5, 5), this);
 
   @Getter
   private Controller controller;
