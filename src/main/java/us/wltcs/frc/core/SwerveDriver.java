@@ -55,5 +55,6 @@ public class SwerveDriver {
 
     position = new Vector2d(swerveDriver.getPose().getX(), swerveDriver.getPose().getY());
     rotationRadians = swerveDriver.getPose().getRotation().getRadians();
+    System.out.println(rotationRadians);
   }
 }
