@@ -3,6 +3,8 @@ package us.wltcs.frc.core;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import swervelib.SwerveDrive;
 import swervelib.parser.SwerveParser;
@@ -12,6 +14,11 @@ import us.wltcs.frc.core.math.vector2.Vector2d;
 
 import java.io.File;
 import java.io.IOException;
+
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
 public class SwerveDriver {
   private final float driveSpeed;
@@ -36,12 +43,35 @@ public class SwerveDriver {
       Context.movement.logError("Failed to initialize swerve modules");
       throw new RuntimeException(e);
     }
-
     swerveDriver.setCosineCompensator(false);
     swerveDriver.setHeadingCorrection(false);
     swerveDriver.zeroGyro();
 
-    swerveDriver.resetOdometry(new Pose2d(new Translation2d(position.x, position.y), new Rotation2d()));
+    this.resetPose();
+
+    try {
+      final RobotConfig config = RobotConfig.fromGUISettings();
+      AutoBuilder.configure(
+        swerveDriver::getPose, // Robot pose supplier
+        this::resetPose, // Method to reset odometry (will be called if your auto has a starting pose)
+        this::getRobotRelativeSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
+        (speeds, feedforwards) -> swerveDriver.drive(speeds),
+        new PPHolonomicDriveController( // PPHolonomicController is the built in path following controller for holonomic drive trains
+                new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
+                new PIDConstants(5.0, 0.0, 0.0) // Rotation PID constants
+        ),
+        config,
+        () -> {
+          var alliance = DriverStation.getAlliance();
+          if (alliance.isPresent()) {
+            return alliance.get() == DriverStation.Alliance.Red;
+          }
+          return false;
+        }
+      );
+    } catch (Exception e) {
+      Context.movement.logError("Failed to load path planner config from GUI settings");
+    }
   }
 
   // fieldRelative defines whether the forward direction to move at is either the robot's forward direction or the field's
@@ -55,6 +85,17 @@ public class SwerveDriver {
 
     position = new Vector2d(swerveDriver.getPose().getX(), swerveDriver.getPose().getY());
     rotationRadians = swerveDriver.getPose().getRotation().getRadians();
-    System.out.println(rotationRadians);
+  }
+
+  private void resetPose() {
+      swerveDriver.resetOdometry(new Pose2d(new Translation2d(position.x, position.y), new Rotation2d()));
+  }
+
+  private void resetPose(Pose2d pose) {
+      swerveDriver.resetOdometry(pose);
+  }
+
+  private ChassisSpeeds getRobotRelativeSpeeds() {
+    return swerveDriver.getRobotVelocity();
   }
 }

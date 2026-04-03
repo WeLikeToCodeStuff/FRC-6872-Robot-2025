@@ -1,5 +1,14 @@
 package us.wltcs.frc.core;
 
+import java.io.IOException;
+
+import org.json.simple.parser.ParseException;
+
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.commands.PathPlannerAuto;
+import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.util.FileVersionException;
+
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.motorcontrol.PWMTalonSRX;
@@ -54,6 +63,8 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit() {
+    // call without using scheduler to avoid conflicts with state machine
+    new PathPlannerAuto("New Path").schedule();
   }
 
   @Override
