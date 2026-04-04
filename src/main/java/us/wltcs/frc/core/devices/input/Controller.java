@@ -38,7 +38,7 @@ public class Controller {
     if (vector.length() <= 0.1)
       return new Vector2d(0, 0);
 
-    return vector.normalized();
+    return vector;
   }
 
   // Vector direction of right joystick
@@ -57,6 +57,6 @@ public class Controller {
     if (vector.length() <= 0.1)
       return new Vector2d(0, 0);
 
-    return vector.normalized();
+    return vector;
   }
 }

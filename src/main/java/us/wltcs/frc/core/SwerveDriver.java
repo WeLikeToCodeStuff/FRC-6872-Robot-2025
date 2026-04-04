@@ -88,13 +88,11 @@ public class SwerveDriver {
 
   // fieldRelative defines whether the forward direction to move at is either the robot's forward direction or the field's
   public void drive(Vector2d movementInput, Vector2d rotationInput, boolean fieldRelative) {
-    movementInput = movementInput.normalized();
-    rotationInput = rotationInput.normalized();
+    double moveMagnitude = movementInput.length();  // Get the magnitude (speed) of the movement input
+    double rotateMagnitude = rotationInput.length();  // Get the magnitude (speed) of the rotation input
 
-//    SwerveMath;
-
-    Translation2d direction = new Translation2d(-movementInput.y, -movementInput.x).times(driveSpeed);
-    double rotation = -rotationInput.x * turnSpeed;
+    Translation2d direction = new Translation2d(-movementInput.y, -movementInput.x).times(driveSpeed * moveMagnitude);
+    double rotation = -rotationInput.x * turnSpeed * rotateMagnitude;
 
     SwerveModuleState[] states;
     if (fieldRelative)
