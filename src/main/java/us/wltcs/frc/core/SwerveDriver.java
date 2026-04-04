@@ -4,12 +4,12 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.Filesystem;
-import swervelib.SwerveController;
 import swervelib.SwerveDrive;
-import swervelib.math.SwerveMath;
 import swervelib.parser.SwerveParser;
 import swervelib.telemetry.SwerveDriveTelemetry;
+import us.wltcs.frc.core.devices.output.SwerveModule;
 import us.wltcs.frc.core.logging.Context;
 import us.wltcs.frc.core.math.vector2.Vector2d;
 
@@ -19,7 +19,7 @@ import java.io.IOException;
 import static edu.wpi.first.wpilibj.RobotBase.isSimulation;
 
 public class SwerveDriver {
-  private final float maxSpeed;
+  private final float driveSpeed;
   private final float turnSpeed;
 
   private Vector2d position;
@@ -28,8 +28,8 @@ public class SwerveDriver {
   private final SwerveDrive swerveDriver;
   private final Robot robot;
 
-  public SwerveDriver(float maxSpeed, float turnSpeed, Vector2d position, Robot robot) {
-    this.maxSpeed = maxSpeed;
+  public SwerveDriver(float driveSpeed, float turnSpeed, Vector2d position, Robot robot) {
+    this.driveSpeed = driveSpeed;
     this.turnSpeed = turnSpeed;
     this.robot = robot;
 
@@ -41,7 +41,7 @@ public class SwerveDriver {
     File swerveJsonDirectory = new File(Filesystem.getDeployDirectory(), "swerve/sparkmax");
     try {
       this.swerveDriver = new SwerveParser(swerveJsonDirectory).createSwerveDrive(
-        this.maxSpeed,
+        this.driveSpeed,
         new Pose2d(new Translation2d(position.x, position.y), new Rotation2d())
       );
       System.out.println(swerveDriver.getPose());
@@ -57,18 +57,21 @@ public class SwerveDriver {
 
   // fieldRelative defines whether the forward direction to move at is either the robot's forward direction or the field's
   public void drive(Vector2d movementInput, Vector2d rotationInput, boolean fieldRelative) {
-    movementInput = movementInput.normalized().times(swerveDriver.getMaximumChassisVelocity());
+    movementInput = movementInput.normalized();
     rotationInput = rotationInput.normalized();
 
-    Translation2d direction = new Translation2d(-movementInput.y, -movementInput.x);
-    double rotation = -rotationInput.x * swerveDriver.getMaximumChassisAngularVelocity();
-    System.out.println(movementInput.toString());
+    Translation2d direction = new Translation2d(-movementInput.y, -movementInput.x).times(driveSpeed);
+    double rotation = -rotationInput.x * turnSpeed;
 
-    swerveDriver.drive(
-      direction, rotation,
-      fieldRelative,
-      false
-    );
+    SwerveModuleState[] states;
+    if (fieldRelative)
+      states = swerveDriver.toServeModuleStates(ChassisSpeeds.fromFieldRelativeSpeeds(
+        direction.getX(), direction.getY(), rotation, Rotation2d.fromRadians(rotationRadians)
+      ), false);
+    else
+      states = swerveDriver.toServeModuleStates(new ChassisSpeeds(direction.getX(), direction.getY(), rotation), false);
+
+    swerveDriver.setModuleStates(states, false);
 
     position = new Vector2d(swerveDriver.getPose().getX(), swerveDriver.getPose().getY());
     rotationRadians = swerveDriver.getPose().getRotation().getRadians();
