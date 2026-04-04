@@ -2,6 +2,8 @@ package us.wltcs.frc.core;
 
 import java.io.IOException;
 
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import org.json.simple.parser.ParseException;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -13,6 +15,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.motorcontrol.PWMTalonSRX;
 import lombok.Getter;
+import swervelib.math.SwerveMath;
 import us.wltcs.frc.core.api.event.*;
 import us.wltcs.frc.core.autonomous.RecordingManager;
 import us.wltcs.frc.core.devices.input.Controller;
@@ -39,7 +42,7 @@ public class Robot extends TimedRobot {
   private final SwerveDriver swerveDriver = new SwerveDriver(10, 10, new Vector2d(5, 5), this);
 
   @Getter
-  private Controller controller;
+  private final Controller controller = new Controller(0);
 
   @Override
   public void robotInit() {
@@ -54,7 +57,6 @@ public class Robot extends TimedRobot {
 
     // Recordings initialization
     recordingManager.loadRecordings();
-    controller =  new Controller(0);
   }
 
   @Override
