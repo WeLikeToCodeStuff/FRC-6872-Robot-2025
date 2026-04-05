@@ -39,7 +39,7 @@ public class Robot extends TimedRobot {
   private final StateMachine stateMachine = new StateMachine();
   private final RecordingManager recordingManager = new RecordingManager();
 
-  private final SwerveDriver swerveDriver = new SwerveDriver(10, 10, new Vector2d(5, 5), this);
+  private final SwerveDriver swerveDriver = new SwerveDriver(10, 10, this);
 
   @Getter
   private final Controller controller = new Controller(0);
@@ -68,12 +68,13 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     // call without using scheduler to avoid conflicts with state machine
-    new PathPlannerAuto("New Path").schedule();
+//    new PathPlannerAuto("test");
   }
 
   @Override
   public void autonomousPeriodic() {
-    stateMachine.update();
+//    stateMachine.update();
+    swerveDriver.drive();
   }
 
   @Override
