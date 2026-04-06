@@ -8,6 +8,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import swervelib.SwerveController;
 import swervelib.SwerveDrive;
 import swervelib.SwerveModule;
@@ -64,6 +65,9 @@ public class SwerveDriver {
   public void drive(Vector2d movementInput, double rotationDelta, boolean fieldRelative) {
     Translation2d direction = new Translation2d(-movementInput.y, -movementInput.x).times(maxMotorSpeed * movementInput.length());
     double rotation = -rotationDelta * maxMotorSpeed;
+
+    if (Robot.getAlliance() == Alliance.Red)
+      direction = new Translation2d(-direction.getX(), -direction.getY());
 
     SwerveModuleState[] states;
     if (fieldRelative)
