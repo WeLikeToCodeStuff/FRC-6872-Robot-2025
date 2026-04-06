@@ -2,13 +2,10 @@ package us.wltcs.frc.core;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathPlannerPath;
-import com.pathplanner.lib.trajectory.PathPlannerTrajectory;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
-import com.pathplanner.lib.trajectory.PathPlannerTrajectoryState;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
@@ -24,7 +21,7 @@ public class AutonomousDriver {
   private final SwerveDriver swerveDriver;
 	private Command driveCommand;
   private final Timer timer = new Timer();
-  private String currentPathName;
+  private boolean isRunning = false;
 
 	public AutonomousDriver(
     SwerveDriver swerveDriver,
@@ -52,6 +49,8 @@ public class AutonomousDriver {
       return;
     }
 
+    timer.reset();
+
     if (Robot.getAlliance() == DriverStation.Alliance.Red) {
       path = path.flipPath();
       Context.movement.logInfo("Autonomous running on red alliance. Path mirrored automatically");
@@ -61,22 +60,21 @@ public class AutonomousDriver {
     if (startPose.isPresent()) {
       resetOdometry(startPose.get());
     }
-
-    Timer timer = new Timer();
     timer.start();
-
-    driveCommand = AutoBuilder.followPath(path);
-    driveCommand.initialize();
-
-    while (!driveCommand.isFinished()) {
-      driveCommand.execute();
-    }
-
-    driveCommand.end(false);
-    timer.stop();
-
-    Context.movement.logInfo("Autonomous has completed \"%s.path\"", pathName);
+    isRunning = true;
 	}
+
+  public void periodic() {
+    if (driveCommand != null) {
+      driveCommand.execute();
+      if (driveCommand.isFinished()) {
+        driveCommand.end(false);
+        driveCommand = null;
+        isRunning = false;
+        timer.stop();
+      }
+    }
+  }
 
   private Pose2d getPose() {
     return new Pose2d(
