@@ -62,7 +62,10 @@ public class AutonomousDriver {
     }
     timer.start();
     isRunning = true;
-	}
+
+    driveCommand = AutoBuilder.followPath(path);
+    driveCommand.initialize();
+  }
 
   public void periodic() {
     if (driveCommand != null) {
