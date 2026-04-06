@@ -57,6 +57,7 @@ public class Robot extends TimedRobot {
       DriverStation.silenceJoystickConnectionWarning(true);
     }
 
+    controller.update();
     eventBus.subscribe(this);
     eventBus.subscribe(new LauncherListener(new Launcher(new PWMTalonSRX(1), new PWMTalonSRX(2))));
     eventBus.post(new RobotStart(EventType.PRE));
@@ -65,6 +66,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotPeriodic() {
+    controller.update();
     stateMachine.update();
     networkTables.update();
   }

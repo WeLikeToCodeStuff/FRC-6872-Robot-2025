@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.Joystick.AxisType;
 import lombok.Getter;
 import us.wltcs.frc.core.logging.Context;
 import us.wltcs.frc.core.math.MathF;
@@ -19,13 +18,23 @@ public class Controller {
     this.controller = new XboxController(port);
   }
 
+  private final Map<Integer, Boolean> buttonStates = new HashMap<>();
+
   public boolean buttonPressed(int button) {
-    if (button > this.controller.getButtonCount()) {
+    if (button < 0 || button >= controller.getButtonCount()) {
       Context.movement.logError("Attempted to get an out of range button id of %s", button);
       return false;
     }
 
-    return controller.getRawButton(button);
+    if (!buttonStates.containsKey(button)) buttonStates.put(button, controller.getRawButton(button));
+
+    return buttonStates.get(button);
+  }
+
+  public void update() {
+    for (int i = 1; i < controller.getButtonCount(); i++) {
+      buttonStates.put(i, controller.getRawButton(i));
+    }
   }
 
   // Vector direction of left joystick
