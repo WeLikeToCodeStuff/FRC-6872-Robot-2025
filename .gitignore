@@ -185,3 +185,6 @@ compile_commands.json
 
 # Eclipse generated file for annotation processors
 .factorypath
+
+# Ignore the settings.json from PathPlanner as we can just get them from YAGSL
+src/main/deploy/pathplanner/settings.json

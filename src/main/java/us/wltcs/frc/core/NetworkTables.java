@@ -1,4 +1,4 @@
-package us.wltcs.frc.core.ui;
+package us.wltcs.frc.core;
 
 import java.util.HashMap;
 import java.util.Map;

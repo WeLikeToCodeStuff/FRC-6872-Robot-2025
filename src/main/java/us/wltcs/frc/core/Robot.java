@@ -1,31 +1,21 @@
 package us.wltcs.frc.core;
 
-import java.io.IOException;
-
-import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import org.json.simple.parser.ParseException;
-
-import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.commands.PathPlannerAuto;
-import com.pathplanner.lib.path.PathPlannerPath;
-import com.pathplanner.lib.util.FileVersionException;
-
+import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.motorcontrol.PWMTalonSRX;
 import lombok.Getter;
-import swervelib.math.SwerveMath;
 import us.wltcs.frc.core.api.event.*;
-import us.wltcs.frc.core.autonomous.RecordingManager;
 import us.wltcs.frc.core.devices.input.Controller;
 import us.wltcs.frc.core.devices.output.Launcher;
-import us.wltcs.frc.core.math.vector2.Vector2d;
-import us.wltcs.frc.core.ui.NetworkTables;
+import us.wltcs.frc.core.logging.Context;
 import us.wltcs.frc.robot.events.RobotStart;
 import us.wltcs.frc.core.statemachine.StateMachine;
 import us.wltcs.frc.robot.events.TeleoperatedPeriodicEvent;
 import us.wltcs.frc.robot.listeners.LauncherListener;
+
+import java.util.Optional;
 
 // Robot class defining all the behaviour and actions of the robot
 // Learn more about the TimedRobot class here:
@@ -37,9 +27,16 @@ public class Robot extends TimedRobot {
   private final NetworkTables networkTables = new NetworkTables();
 
   private final StateMachine stateMachine = new StateMachine();
-  private final RecordingManager recordingManager = new RecordingManager();
 
-  private final SwerveDriver swerveDriver = new SwerveDriver(10, 10, this);
+  private final SwerveDriver swerveDriver = new SwerveDriver(10, this);
+  private final AutonomousDriver autonomousDriver = new AutonomousDriver(
+    swerveDriver,
+    swerveDriver.getRobotConfig(),
+    new PPHolonomicDriveController( // PPHolonomicController is the built in path following controller for holonomic drive trains
+      new PIDConstants(5, 0, 0), // Translation PID constants
+      new PIDConstants(5, 0, 0) // Rotation PID constants
+    )
+  );
 
   @Getter
   private final Controller controller = new Controller(0);
@@ -47,16 +44,13 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
     if (isSimulation()) {
-     DriverStation.silenceJoystickConnectionWarning(true);
+      DriverStation.silenceJoystickConnectionWarning(true);
     }
 
     eventBus.subscribe(this);
     eventBus.subscribe(new LauncherListener(new Launcher(new PWMTalonSRX(1), new PWMTalonSRX(2))));
     eventBus.post(new RobotStart(EventType.PRE));
     eventBus.post(new RobotStart(EventType.POST));
-
-    // Recordings initialization
-    recordingManager.loadRecordings();
   }
 
   @Override
@@ -69,12 +63,12 @@ public class Robot extends TimedRobot {
   public void autonomousInit() {
     // call without using scheduler to avoid conflicts with state machine
 //    new PathPlannerAuto("test");
+    autonomousDriver.runPath("go");
   }
 
   @Override
   public void autonomousPeriodic() {
 //    stateMachine.update();
-    swerveDriver.drive();
   }
 
   @Override
@@ -119,4 +113,14 @@ public class Robot extends TimedRobot {
   public final EventListener<RobotStart> robotStartEventListener = event -> {
 
   };
+
+  static public DriverStation.Alliance getAlliance() {
+    Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
+    if (alliance.isEmpty()) {
+      Context.program.logWarning("Alliance not set.");
+      return DriverStation.Alliance.Red;
+    }
+
+    return alliance.get();
+  }
 }
