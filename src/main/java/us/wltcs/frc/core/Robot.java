@@ -10,12 +10,13 @@ import us.wltcs.frc.core.api.event.*;
 import us.wltcs.frc.core.devices.input.Controller;
 import us.wltcs.frc.core.devices.output.Launcher;
 import us.wltcs.frc.core.logging.Context;
+import us.wltcs.frc.core.math.vector2.Vector2d;
 import us.wltcs.frc.robot.events.RobotStart;
 import us.wltcs.frc.core.statemachine.StateMachine;
 import us.wltcs.frc.robot.events.TeleoperatedPeriodicEvent;
 import us.wltcs.frc.robot.listeners.LauncherListener;
-
 import java.util.Optional;
+import java.util.TreeMap;
 
 // Robot class defining all the behaviour and actions of the robot
 // Learn more about the TimedRobot class here:
@@ -37,6 +38,15 @@ public class Robot extends TimedRobot {
       new PIDConstants(5, 0, 0) // Rotation PID constants
     )
   );
+
+  // Position of the hoops in inches
+  // https://firstfrc.blob.core.windows.net/frc2026/FieldAssets/2026-field-dimension-dwgs.pdf
+  private final Vector2d[] hoopsPosition = {
+    new Vector2d(182.11, 158.84), // Blue
+    new Vector2d(651.22 - 182.11, 158.84) // Red
+  };
+  private boolean lockedOnHoop = false;
+  private Double lastRotation = 0.0;
 
   @Getter
   private final Controller controller = new Controller(0);
@@ -78,10 +88,29 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     eventBus.post(new TeleoperatedPeriodicEvent(EventType.PRE, this));
-    swerveDriver.drive(controller.getLeftDirection(), controller.getRightDirection(), true);
+
+    if (controller.buttonPressed(1))
+      lockedOnHoop = !lockedOnHoop;
+
+    TreeMap<Double, Vector2d> sortedPositions = new TreeMap<>();
+    for (Vector2d position: hoopsPosition) {
+      Vector2d direction = swerveDriver.getPositionInches().minus(position);
+      sortedPositions.put(direction.length(), position);
+    }
+
+    if (!lockedOnHoop) {
+      double rotationAmount = controller.getRightDirection().x;
+      swerveDriver.drive(controller.getLeftDirection(), rotationAmount, true);
+    }
+    if (lockedOnHoop) {
+      Vector2d closestHoop = sortedPositions.firstEntry().getValue();
+      Vector2d hoopDirection = swerveDriver.getPositionInches().minus(closestHoop).normalized();
+      swerveDriver.drive(controller.getLeftDirection(), new Vector2d(hoopDirection.y, hoopDirection.x), true);
+    }
 
     stateMachine.update();
     eventBus.post(new TeleoperatedPeriodicEvent(EventType.POST, this));
+    lastRotation = swerveDriver.getRotationRadians();
   }
 
   @Override

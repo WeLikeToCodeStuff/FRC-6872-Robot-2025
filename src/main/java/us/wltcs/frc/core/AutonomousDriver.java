@@ -113,7 +113,7 @@ public class AutonomousDriver {
 
   private Pose2d getPose() {
     return new Pose2d(
-      new Translation2d(swerveDriver.getPosition().x, swerveDriver.getPosition().y),
+      new Translation2d(swerveDriver.getPositionMeters().x, swerveDriver.getPositionMeters().y),
       new Rotation2d(swerveDriver.getRotationRadians())
     );
   }

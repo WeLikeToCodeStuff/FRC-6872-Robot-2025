@@ -8,6 +8,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.Filesystem;
+import swervelib.SwerveController;
 import swervelib.SwerveDrive;
 import swervelib.SwerveModule;
 import swervelib.parser.SwerveModulePhysicalCharacteristics;
@@ -60,9 +61,9 @@ public class SwerveDriver {
   }
 
   // fieldRelative defines whether the forward direction to move at is either the robot's forward direction or the field's
-  public void drive(Vector2d movementInput, Vector2d rotationInput, boolean fieldRelative) {
+  public void drive(Vector2d movementInput, double rotationDelta, boolean fieldRelative) {
     Translation2d direction = new Translation2d(-movementInput.y, -movementInput.x).times(maxMotorSpeed * movementInput.length());
-    double rotation = -rotationInput.x * maxMotorSpeed * rotationInput.length();
+    double rotation = -rotationDelta * maxMotorSpeed;
 
     SwerveModuleState[] states;
     if (fieldRelative)
@@ -75,6 +76,33 @@ public class SwerveDriver {
     swerveDriver.setModuleStates(states, false);
   }
 
+  public void drive(Vector2d movementInput, Vector2d rotationInput, boolean fieldRelative) {
+    double turnRadians = getRotationRadians();
+    if (rotationInput.length() != 0)
+      turnRadians = Math.atan2(-rotationInput.y, rotationInput.x) - Math.PI / 2;
+
+    Vector2d robotForward = new Vector2d(Math.cos(getRotationRadians()), Math.sin(getRotationRadians()));
+    Vector2d robotLeft = new Vector2d(robotForward.y, -robotForward.x);
+    Vector2d moveDirection = robotLeft.times(movementInput.x).plus(robotForward.times(-movementInput.y)).normalized();
+    if (fieldRelative)
+      moveDirection = new Vector2d(-movementInput.y, -movementInput.x);
+
+    ChassisSpeeds desiredSpeeds = swerveDriver.swerveController.getTargetSpeeds(
+      moveDirection.x, moveDirection.y,
+      turnRadians,
+      getRotationRadians(),
+      maxMotorSpeed
+    );
+
+    Translation2d translation = SwerveController.getTranslation2d(desiredSpeeds);
+    swerveDriver.drive(
+      translation,
+      desiredSpeeds.omegaRadiansPerSecond,
+      true,
+      false
+    );
+  }
+
   public void resetOdometry(Vector2d position, double rotationRadians) {
     swerveDriver.resetOdometry(new Pose2d(new Translation2d(position.x, position.y), new Rotation2d(rotationRadians)));
   }
@@ -84,8 +112,15 @@ public class SwerveDriver {
     swerveDriver.lockPose();
   }
 
-  public Vector2d getPosition() {
+  public Vector2d getPositionMeters() {
     return new Vector2d(swerveDriver.getPose().getTranslation().getX(), swerveDriver.getPose().getTranslation().getY());
+  }
+
+  public Vector2d getPositionInches() {
+    return new Vector2d(
+      MathF.metersToInches(swerveDriver.getPose().getTranslation().getX()),
+      MathF.metersToInches(swerveDriver.getPose().getTranslation().getY())
+    );
   }
 
   public double getRotationRadians() {
@@ -112,13 +147,20 @@ public class SwerveDriver {
     System.out.println("gearboxreudction: " + gearboxReduction);
     System.out.println("driveCurrentlimit: " + driveCurrentLimit);
 
+    // Estimating MOI
+    // https://pathplanner.dev/robot-config.html#calculating-a-rough-moi-estimate
+    double length = MathF.inchesToMeters(28);
+    double width = MathF.inchesToMeters(28);
+    double robotMOI = (1.0 / 12.0) * mass * (length * length + width * width);
+    System.out.println("moi: " + robotMOI);
+
     return
       new RobotConfig(
         mass,
-       6.8,
+        robotMOI,
         new ModuleConfig(
           MathF.inchesToMeters(wheelRadiusInches),
-          maxMotorSpeed,
+          maxMotorSpeed, // TODO: GET THE REAL VALUE
           wheelGripCoefficient,
           DCMotor.getNEO(1).withReduction(gearboxReduction), driveCurrentLimit,
           1

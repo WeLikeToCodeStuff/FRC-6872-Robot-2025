@@ -16,11 +16,11 @@ public class MathF {
   }
 
   public double inchesToMeters(double meters) {
-    return meters * 39.3700787402;
+    return meters * 0.0254;
   }
 
   public double metersToInches(double inches) {
-    return inches * 0.0254;
+    return inches * 39.3700787402;
   }
 
   public static <T extends Comparable<T>> T clamp(T val, T min, T max) {
