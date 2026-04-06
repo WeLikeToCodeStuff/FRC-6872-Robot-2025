@@ -52,11 +52,11 @@ public class SwerveDriver {
     swerveDriver.zeroGyro();
   }
 
-  public void driveAutonomous(Vector2d moveDirection, double rotationRadiansSpeed) {
-    Translation2d direction = new Translation2d(-moveDirection.y, -moveDirection.x);
-    double rotation = -rotationRadiansSpeed;
-
-    SwerveModuleState[] states = swerveDriver.toServeModuleStates(new ChassisSpeeds(direction.getX(), direction.getY(), rotation), true);
+  public void driveAutonomous(ChassisSpeeds speed) {
+    SwerveModuleState[] states = swerveDriver.toServeModuleStates(
+      speed,
+      true
+    );
     swerveDriver.setModuleStates(states, false);
   }
 
@@ -136,13 +136,15 @@ public class SwerveDriver {
     SwerveModulePhysicalCharacteristics physicalCharacteristics = module.configuration.physicalCharacteristics;
 
     double wheelGripCoefficient = physicalCharacteristics.wheelGripCoefficientOfFriction;
-    double mass = physicalCharacteristics.robotMassKg;
-    double wheelRadiusInches = physicalCharacteristics.conversionFactor.drive.diameter;
+    double robotMassKg = physicalCharacteristics.robotMassKg;
+    double wheelDiameterInches = physicalCharacteristics.conversionFactor.drive.diameter;
+    double wheelRadiusInches = wheelDiameterInches / 2.0;
     double gearboxReduction = physicalCharacteristics.conversionFactor.drive.gearRatio;
     double driveCurrentLimit = physicalCharacteristics.driveMotorCurrentLimit;
 
     System.out.println("wheelgripcoef: " + wheelGripCoefficient);
-    System.out.println("mass: " + mass);
+    System.out.println("mass: " + robotMassKg);
+    System.out.println("wheelDiameterIN: " + wheelDiameterInches);
     System.out.println("wheelRadiusIN: " + wheelRadiusInches);
     System.out.println("gearboxreudction: " + gearboxReduction);
     System.out.println("driveCurrentlimit: " + driveCurrentLimit);
@@ -151,12 +153,12 @@ public class SwerveDriver {
     // https://pathplanner.dev/robot-config.html#calculating-a-rough-moi-estimate
     double length = MathF.inchesToMeters(28);
     double width = MathF.inchesToMeters(28);
-    double robotMOI = (1.0 / 12.0) * mass * (length * length + width * width);
+    double robotMOI = (1.0 / 12.0) * robotMassKg * (length * length + width * width);
     System.out.println("moi: " + robotMOI);
 
     return
       new RobotConfig(
-        mass,
+        robotMassKg,
         robotMOI,
         new ModuleConfig(
           MathF.inchesToMeters(wheelRadiusInches),

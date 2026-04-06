@@ -1,5 +1,6 @@
 package us.wltcs.frc.core;
 
+import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.trajectory.PathPlannerTrajectory;
 import com.pathplanner.lib.config.RobotConfig;
@@ -11,6 +12,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj2.command.Command;
 import us.wltcs.frc.core.logging.Context;
 import us.wltcs.frc.core.math.vector2.Vector2d;
 import java.util.Optional;
@@ -20,24 +22,29 @@ import java.util.Optional;
 
 public class AutonomousDriver {
   private final SwerveDriver swerveDriver;
-	private final PPHolonomicDriveController driveController;
-	private final RobotConfig robotConfig;
-
-	private final Timer timer = new Timer();
+	private Command driveCommand;
+  private final Timer timer = new Timer();
+  private String currentPathName;
 
 	public AutonomousDriver(
     SwerveDriver swerveDriver,
     RobotConfig config,
     PPHolonomicDriveController driveController
   ) {
-	  this.robotConfig = config;
     this.swerveDriver = swerveDriver;
-    this.driveController = driveController;
+    AutoBuilder.configure(
+      this::getPose,
+      this::resetOdometry,
+      swerveDriver::getRobotRelativeVelocity,
+      (speeds, feedforwards) -> swerveDriver.driveAutonomous(speeds),
+      driveController,
+      config,
+      () -> false
+    );
   }
 
 	public void runPath(String pathName) {
-    // Getting path and trajectory
-		PathPlannerPath path;
+    PathPlannerPath path;
     try {
       path = PathPlannerPath.fromPathFile(pathName);
     } catch (Exception e) {
@@ -45,69 +52,29 @@ public class AutonomousDriver {
       return;
     }
 
-    PathPlannerTrajectory trajectory = path.getIdealTrajectory(robotConfig).get();
     if (Robot.getAlliance() == DriverStation.Alliance.Red) {
       path = path.flipPath();
-      Context.movement.logInfo("Autonomous running on red alliance. Any paths will be mirrored automatically");
+      Context.movement.logInfo("Autonomous running on red alliance. Path mirrored automatically");
     }
 
-    // If the path defines a starting pose, reset odometry
-    try {
-      Optional<Pose2d> startPose = path.getStartingHolonomicPose();
-      if (startPose.isPresent()) {
-        Pose2d pose = startPose.get();
-        swerveDriver.resetOdometry(new Vector2d(pose.getX(), pose.getY()), pose.getRotation().getRadians());
-      }
-    } catch (Throwable ignore) {
-      Context.movement.logWarning("Start pose unavailable. Odometry position will be defaulted to (0, 0)");
+    Optional<Pose2d> startPose = path.getStartingHolonomicPose();
+    if (startPose.isPresent()) {
+      resetOdometry(startPose.get());
     }
 
-    if (path.getIdealTrajectory(robotConfig).isEmpty())
-      return;
-
-    driveController.reset(getPose(), swerveDriver.getRobotRelativeVelocity());
-
-//    double linearVel = Math.hypot(currentSpeeds.vxMetersPerSecond, currentSpeeds.vyMetersPerSecond);
-//    if (path.getIdealStartingState() != null) {
-//      // Check if we match the ideal starting state
-//      boolean idealVelocity =
-//              Math.abs(linearVel - path.getIdealStartingState().velocityMPS()) <= 0.25;
-//      boolean idealRotation =
-//              !robotConfig.isHolonomic
-//                      || Math.abs(
-//                      currentPose
-//                              .getRotation()
-//                              .minus(path.getIdealStartingState().rotation())
-//                              .getDegrees())
-//                      <= 30.0;
-//      if (idealVelocity && idealRotation) {
-//        // We can use the ideal trajectory
-//        trajectory = path.getIdealTrajectory(robotConfig).orElseThrow();
-//      } else {
-//        // We need to regenerate
-//        trajectory = path.generateTrajectory(currentSpeeds, currentPose.getRotation(), robotConfig);
-//      }
-//    } else {
-//      // No ideal starting state, generate the trajectory
-//      trajectory = path.generateTrajectory(currentSpeeds, currentPose.getRotation(), robotConfig);
-//    }
-
-    timer.reset();
+    Timer timer = new Timer();
     timer.start();
 
-    double endTime = trajectory.getEndState().timeSeconds;
-		while (timer.get() <= endTime) {
-			PathPlannerTrajectoryState state = trajectory.sample(timer.get());
+    driveCommand = AutoBuilder.followPath(path);
+    driveCommand.initialize();
 
-			ChassisSpeeds targetSpeeds = driveController.calculateRobotRelativeSpeeds(getPose(), state);
-      swerveDriver.driveAutonomous(
-        new Vector2d(targetSpeeds.vxMetersPerSecond, targetSpeeds.vyMetersPerSecond),
-        targetSpeeds.omegaRadiansPerSecond
-      );
-		}
+    while (!driveCommand.isFinished()) {
+      driveCommand.execute();
+    }
 
-		timer.stop();
-    swerveDriver.driveAutonomous(new Vector2d(0, 0), 0);
+    driveCommand.end(false);
+    timer.stop();
+
     Context.movement.logInfo("Autonomous has completed \"%s.path\"", pathName);
 	}
 
@@ -115,6 +82,13 @@ public class AutonomousDriver {
     return new Pose2d(
       new Translation2d(swerveDriver.getPositionMeters().x, swerveDriver.getPositionMeters().y),
       new Rotation2d(swerveDriver.getRotationRadians())
+    );
+  }
+
+  private void resetOdometry(Pose2d pose) {
+    swerveDriver.resetOdometry(
+      new Vector2d(pose.getTranslation().getX(), pose.getTranslation().getY()),
+      pose.getRotation().getRadians()
     );
   }
 }
