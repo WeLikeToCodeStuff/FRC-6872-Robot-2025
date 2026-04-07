@@ -32,7 +32,7 @@ public class Robot extends TimedRobot {
   private final NetworkTables networkTables = new NetworkTables();
 
   private final StateMachine stateMachine = new StateMachine();
-  private final SendableChooser<Command> autoChooser = AutoBuilder.buildAutoChooser();
+  private SendableChooser<Command> autoChooser;
 
   private final SwerveDriver swerveDriver = new SwerveDriver(10, this);
   private final AutonomousDriver autonomousDriver = new AutonomousDriver(
@@ -62,6 +62,7 @@ public class Robot extends TimedRobot {
       DriverStation.silenceJoystickConnectionWarning(true);
     }
 
+    this.autoChooser = AutoBuilder.buildAutoChooser();
     controller.update();
     eventBus.subscribe(this);
     eventBus.subscribe(new LauncherListener(new Launcher(new PWMTalonSRX(1), new PWMTalonSRX(2), new PWMTalonSRX(3))));
