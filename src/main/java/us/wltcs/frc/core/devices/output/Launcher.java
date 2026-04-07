@@ -9,18 +9,16 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.wpilibj.motorcontrol.PWMTalonSRX;
 import lombok.Getter;
 
+@Getter
 public class Launcher {
-    @Getter private final PWMTalonSRX leftLauncherMotor;
-    @Getter private final PWMTalonSRX rightLauncherMotor;
+    private final PWMTalonSRX leftIntakeMotor;
+    private final PWMTalonSRX rightIntakeMotor;
+    private final PWMTalonSRX leftLauncherMotor;
 
-    public Launcher(PWMTalonSRX leftLauncherMotor, PWMTalonSRX rightLauncherMotor) {
+    public Launcher(PWMTalonSRX leftIntakeMotor, PWMTalonSRX rightIntakeMotor, PWMTalonSRX leftLauncherMotor) {
+        this.leftIntakeMotor = leftIntakeMotor;
+        this.rightIntakeMotor = rightIntakeMotor;
         this.leftLauncherMotor = leftLauncherMotor;
-        this.rightLauncherMotor = rightLauncherMotor;
     }
 
-//     public Launcher setSpeed(double speed) {
-//         leftLauncherMotor.set(speed);
-//         rightLauncherMotor.set(-speed);
-//         return this;
-//     }
 }

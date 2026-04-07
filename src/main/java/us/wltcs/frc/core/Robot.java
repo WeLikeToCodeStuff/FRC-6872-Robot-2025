@@ -59,7 +59,7 @@ public class Robot extends TimedRobot {
 
     controller.update();
     eventBus.subscribe(this);
-    eventBus.subscribe(new LauncherListener(new Launcher(new PWMTalonSRX(1), new PWMTalonSRX(2))));
+    eventBus.subscribe(new LauncherListener(new Launcher(new PWMTalonSRX(1), new PWMTalonSRX(2), new PWMTalonSRX(3))));
     eventBus.post(new RobotStart(EventType.PRE));
     eventBus.post(new RobotStart(EventType.POST));
   }
