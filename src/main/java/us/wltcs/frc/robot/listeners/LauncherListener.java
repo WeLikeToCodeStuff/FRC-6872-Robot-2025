@@ -21,15 +21,8 @@ public class LauncherListener {
     }
 
 
-    if (event.getRobot().getController().buttonPressed(5)) {
-        this.launcher.getLeftIntakeMotor().set(1);
-        this.launcher.getRightIntakeMotor().set(-1);
-    }
+    if (event.getRobot().getController().buttonPressed(5)) this.launcher.intake();
 
-    if (event.getRobot().getController().buttonPressed(6)) {
-        this.launcher.getLeftLauncherMotor().set(1);
-        this.launcher.getLeftIntakeMotor().set(1);
-        this.launcher.getRightIntakeMotor().set(-1);
-    }
+    if (event.getRobot().getController().buttonPressed(6)) this.launcher.launch();
   };
 }

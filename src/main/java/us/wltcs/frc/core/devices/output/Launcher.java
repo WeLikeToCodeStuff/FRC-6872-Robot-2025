@@ -21,4 +21,14 @@ public class Launcher {
         this.leftLauncherMotor = leftLauncherMotor;
     }
 
+    public void intake() {
+        this.leftIntakeMotor.set(1);
+        this.rightIntakeMotor.set(-1);
+    }
+
+    public void launch() {
+        this.leftLauncherMotor.set(1);
+        this.leftIntakeMotor.set(1);
+        this.rightIntakeMotor.set(-1);
+    }
 }
