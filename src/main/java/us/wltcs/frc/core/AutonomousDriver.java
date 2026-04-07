@@ -1,6 +1,7 @@
 package us.wltcs.frc.core;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
@@ -38,6 +39,27 @@ public class AutonomousDriver {
       config,
       () -> false
     );
+  }
+
+  public void runAuto(String autoName) {
+    PathPlannerAuto auto;
+    try {
+      auto = new PathPlannerAuto(autoName);
+    } catch (Exception e) {
+      Context.movement.logError("Autonomous failed to load \"%s\" ", autoName + ": " + e.getMessage());
+    }
+
+    timer.reset();
+
+    driveCommand = AutoBuilder.buildAuto(autoName);
+    if (driveCommand == null) {
+      Context.movement.logError("Autonomous failed to load \"%s\" ", autoName + ": AutoBuilder returned null");
+      return;
+    }
+
+    driveCommand.initialize();
+    timer.start();
+    isRunning = true;
   }
 
 	public void runPath(String pathName) {
