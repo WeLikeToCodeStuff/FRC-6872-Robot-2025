@@ -1,10 +1,14 @@
 package us.wltcs.frc.core;
 
+import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.motorcontrol.PWMTalonSRX;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import lombok.Getter;
 import us.wltcs.frc.core.api.event.*;
 import us.wltcs.frc.core.devices.input.Controller;
@@ -28,6 +32,7 @@ public class Robot extends TimedRobot {
   private final NetworkTables networkTables = new NetworkTables();
 
   private final StateMachine stateMachine = new StateMachine();
+  private final SendableChooser<Command> autoChooser = AutoBuilder.buildAutoChooser();
 
   private final SwerveDriver swerveDriver = new SwerveDriver(10, this);
   private final AutonomousDriver autonomousDriver = new AutonomousDriver(
@@ -62,6 +67,8 @@ public class Robot extends TimedRobot {
     eventBus.subscribe(new LauncherListener(new Launcher(new PWMTalonSRX(1), new PWMTalonSRX(2), new PWMTalonSRX(3))));
     eventBus.post(new RobotStart(EventType.PRE));
     eventBus.post(new RobotStart(EventType.POST));
+
+    SmartDashboard.putData("Auto Chooser", autoChooser);
   }
 
   @Override
@@ -73,7 +80,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit() {
-    autonomousDriver.runAuto("Left");
+    autonomousDriver.executeCommand(this.autoChooser.getSelected());
   }
 
   @Override

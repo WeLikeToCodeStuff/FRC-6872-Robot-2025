@@ -41,6 +41,13 @@ public class AutonomousDriver {
     );
   }
 
+  public void executeCommand(Command command) {
+      this.driveCommand = command;
+      this.driveCommand.initialize();
+      this.timer.reset();
+      this.timer.start();
+  }
+
   public void runAuto(String autoName) {
     PathPlannerAuto auto;
     try {
@@ -62,7 +69,7 @@ public class AutonomousDriver {
     isRunning = true;
   }
 
-	public void runPath(String pathName) {
+  public void runPath(String pathName) {
     PathPlannerPath path;
     try {
       path = PathPlannerPath.fromPathFile(pathName);
