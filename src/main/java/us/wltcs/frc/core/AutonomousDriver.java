@@ -34,7 +34,7 @@ public class AutonomousDriver {
       this::getPose,
       this::resetOdometry,
       swerveDriver::getRobotRelativeVelocity,
-      (speeds, feedforwards) -> swerveDriver.driveAutonomous(speeds),
+      (speeds) -> swerveDriver.driveAutonomous(speeds),
       driveController,
       config,
       () -> false
@@ -97,6 +97,7 @@ public class AutonomousDriver {
         driveCommand = null;
         isRunning = false;
         timer.stop();
+        // Reset the odometry here when done?
       }
     }
   }

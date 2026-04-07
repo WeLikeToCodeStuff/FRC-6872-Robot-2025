@@ -73,9 +73,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit() {
-    // call without using scheduler to avoid conflicts with state machine
-//    new PathPlannerAuto("test");
-    autonomousDriver.runPath("go");
+    autonomousDriver.runAuto("Left");
   }
 
   @Override

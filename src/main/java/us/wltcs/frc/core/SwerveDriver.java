@@ -171,7 +171,12 @@ public class SwerveDriver {
           DCMotor.getNEO(1).withReduction(gearboxReduction), driveCurrentLimit,
           1
         ),
-        0.55
+        new Translation2d[] {
+          new Translation2d(0.273, 0.273),
+          new Translation2d(0.273, -0.273),
+          new Translation2d(-0.273, 0.273),
+          new Translation2d(-0.273, -0.273)
+        }
       );
   }
 }
