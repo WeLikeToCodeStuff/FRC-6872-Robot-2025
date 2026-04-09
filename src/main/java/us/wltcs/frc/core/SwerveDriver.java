@@ -7,6 +7,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import swervelib.SwerveController;
@@ -34,14 +35,14 @@ public class SwerveDriver {
     this.maxMotorSpeed = driveSpeed;
     this.robot = robot;
 
-    if (isSimulation())
+    // if (isSimulation())
       SwerveDriveTelemetry.verbosity = SwerveDriveTelemetry.TelemetryVerbosity.HIGH;
 
     File swerveJsonDirectory = new File(Filesystem.getDeployDirectory(), "swerve/sparkmax");
     try {
       this.swerveDriver = new SwerveParser(swerveJsonDirectory).createSwerveDrive(
         this.maxMotorSpeed,
-        new Pose2d(new Translation2d(), new Rotation2d())
+        new Pose2d(new Translation2d(edu.wpi.first.units.Units.Meters.of(500000), edu.wpi.first.units.Units.Meters.of(500000)), Rotation2d.fromDegrees(0))
       );
       System.out.println(swerveDriver.getPose());
     } catch (IOException e) {

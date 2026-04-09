@@ -1,7 +1,6 @@
 package us.wltcs.frc.core;
 
 import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -63,16 +62,12 @@ public class Robot extends TimedRobot {
       DriverStation.silenceJoystickConnectionWarning(true);
     }
 
-    final Launcher launcher = new Launcher(new PWMTalonSRX(1), new PWMTalonSRX(2), new PWMTalonSRX(3));
+    this.autoChooser = AutoBuilder.buildAutoChooser();
     controller.update();
     eventBus.subscribe(this);
-    eventBus.subscribe(new LauncherListener(launcher));
+    eventBus.subscribe(new LauncherListener(new Launcher(new PWMTalonSRX(1), new PWMTalonSRX(2), new PWMTalonSRX(3))));
     eventBus.post(new RobotStart(EventType.PRE));
     eventBus.post(new RobotStart(EventType.POST));
-
-    this.autoChooser = AutoBuilder.buildAutoChooser("Middle");
-    NamedCommands.registerCommand("intake", launcher.intake());
-    NamedCommands.registerCommand("shoot", launcher.launch());
 
     SmartDashboard.putData("Auto Chooser", autoChooser);
   }
@@ -92,7 +87,7 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousPeriodic() {
 //    stateMachine.update();
-    autonomousDriver.periodic();
+    // autonomousDriver.periodic();
   }
 
   @Override
@@ -112,19 +107,19 @@ public class Robot extends TimedRobot {
       sortedPositions.put(direction.length(), position);
     }
 
-    if (!lockedOnHoop) {
+    // if (!lockedOnHoop) {
       double rotationAmount = controller.getRightDirection().x;
       swerveDriver.drive(controller.getLeftDirection(), rotationAmount, true);
-    }
-    if (lockedOnHoop) {
-      Vector2d closestHoop = sortedPositions.firstEntry().getValue();
-      Vector2d hoopDirection = swerveDriver.getPositionInches().minus(closestHoop).normalized();
-      swerveDriver.drive(controller.getLeftDirection(), new Vector2d(hoopDirection.y, hoopDirection.x), true);
-    }
+    // }
+    // if (lockedOnHoop) {  
+      // Vector2d closestHoop = sortedPositions.firstEntry().getValue();
+      // Vector2d hoopDirection = swerveDriver.getPositionInches().minus(closestHoop).normalized();
+      // swerveDriver.drive(controller.getLeftDirection(), new Vector2d(hoopDirection.y, hoopDirection.x), true);
+    // }
 
-    stateMachine.update();
-    eventBus.post(new TeleoperatedPeriodicEvent(EventType.POST, this));
-    lastRotation = swerveDriver.getRotationRadians();
+    // stateMachine.update();
+    // eventBus.post(new TeleoperatedPeriodicEvent(EventType.POST, this));
+    // lastRotation = swerveDriver.getRotationRadians();
   }
 
   @Override
