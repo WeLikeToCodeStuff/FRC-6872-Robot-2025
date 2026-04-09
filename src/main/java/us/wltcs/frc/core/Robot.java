@@ -1,6 +1,7 @@
 package us.wltcs.frc.core;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -62,12 +63,16 @@ public class Robot extends TimedRobot {
       DriverStation.silenceJoystickConnectionWarning(true);
     }
 
-    this.autoChooser = AutoBuilder.buildAutoChooser();
+    final Launcher launcher = new Launcher(new PWMTalonSRX(1), new PWMTalonSRX(2), new PWMTalonSRX(3));
     controller.update();
     eventBus.subscribe(this);
-    eventBus.subscribe(new LauncherListener(new Launcher(new PWMTalonSRX(1), new PWMTalonSRX(2), new PWMTalonSRX(3))));
+    eventBus.subscribe(new LauncherListener(launcher));
     eventBus.post(new RobotStart(EventType.PRE));
     eventBus.post(new RobotStart(EventType.POST));
+
+    this.autoChooser = AutoBuilder.buildAutoChooser("Middle");
+    NamedCommands.registerCommand("intake", launcher.intake());
+    NamedCommands.registerCommand("shoot", launcher.launch());
 
     SmartDashboard.putData("Auto Chooser", autoChooser);
   }
