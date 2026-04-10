@@ -150,6 +150,7 @@ public class SwerveDriver {
   }
 
   public RobotConfig getRobotConfig() {
+    SwerveModule[] modules = swerveDriver.getModules();
     SwerveModule module = swerveDriver.getModules()[0];
     SwerveModulePhysicalCharacteristics physicalCharacteristics = module.configuration.physicalCharacteristics;
 
@@ -160,12 +161,23 @@ public class SwerveDriver {
     double gearboxReduction = physicalCharacteristics.conversionFactor.drive.gearRatio;
     double driveCurrentLimit = physicalCharacteristics.driveMotorCurrentLimit;
 
+    Translation2d frontLeftModule = modules[0].getConfiguration().moduleLocation;
+    Translation2d frontRightModule = modules[1].getConfiguration().moduleLocation;
+    Translation2d backLeftModule = modules[2].getConfiguration().moduleLocation;
+    Translation2d backRightModule = modules[3].getConfiguration().moduleLocation;
+
     System.out.println("wheelgripcoef: " + wheelGripCoefficient);
     System.out.println("mass: " + robotMassKg);
     System.out.println("wheelDiameterIN: " + wheelDiameterInches);
     System.out.println("wheelRadiusIN: " + wheelRadiusInches);
     System.out.println("gearboxreudction: " + gearboxReduction);
     System.out.println("driveCurrentlimit: " + driveCurrentLimit);
+
+//    System.out.println(frontLeftModule);
+//    System.out.println(frontRightModule);
+//    System.out.println(backLeftModule);
+//    System.out.println(backRightModule);
+
 
     // Estimating MOI
     // https://pathplanner.dev/robot-config.html#calculating-a-rough-moi-estimate
@@ -186,10 +198,10 @@ public class SwerveDriver {
           1
         ),
         new Translation2d[] {
-          new Translation2d(0.273, 0.273),
-          new Translation2d(0.273, -0.273),
-          new Translation2d(-0.273, 0.273),
-          new Translation2d(-0.273, -0.273)
+          frontLeftModule,
+                frontRightModule,
+                backLeftModule,
+                backRightModule
         }
       );
   }
