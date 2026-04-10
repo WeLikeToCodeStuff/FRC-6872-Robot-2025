@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import lombok.Getter;
 import us.wltcs.frc.core.api.event.*;
 import us.wltcs.frc.core.devices.input.Controller;
+import us.wltcs.frc.core.devices.output.Camera;
 import us.wltcs.frc.core.devices.output.Launcher;
 import us.wltcs.frc.core.logging.Context;
 import us.wltcs.frc.core.math.vector2.Vector2d;
@@ -27,6 +28,7 @@ import java.util.TreeMap;
 // Learn more about the TimedRobot class here:
 // https://austinshalit.github.io/allwpilib/allwpilib/docs/release/java/edu/wpi/first/wpilibj/TimedRobot.html
 public class Robot extends TimedRobot {
+  @Getter private static Robot instance;
   private final EventBus eventBus = new EventBus();
 
   @Getter
@@ -35,13 +37,13 @@ public class Robot extends TimedRobot {
   private final StateMachine stateMachine = new StateMachine();
   private SendableChooser<Command> autoChooser;
 
-  private final SwerveDriver swerveDriver = new SwerveDriver(10, this);
+  @Getter private final SwerveDriver swerveDriver = new SwerveDriver(5, this);
   private final AutonomousDriver autonomousDriver = new AutonomousDriver(
     swerveDriver,
     swerveDriver.getRobotConfig(),
     new PPHolonomicDriveController( // PPHolonomicController is the built in path following controller for holonomic drive trains
-      new PIDConstants(5, 0, 0), // Translation PID constants
-      new PIDConstants(5, 0, 0) // Rotation PID constants
+      new PIDConstants(0.0021, 0000002, 0), // Translation PID constants
+      new PIDConstants(0.1, 0, 0) // Rotation PID constants
     )
   );
 
@@ -56,9 +58,12 @@ public class Robot extends TimedRobot {
 
   @Getter
   private final Controller controller = new Controller(0);
+  @Getter 
+  private final Camera camera = new Camera("Camera", 1920, 1080);
 
   @Override
   public void robotInit() {
+    instance = this;
     if (isSimulation()) {
       DriverStation.silenceJoystickConnectionWarning(true);
     }
@@ -71,8 +76,8 @@ public class Robot extends TimedRobot {
     eventBus.post(new RobotStart(EventType.PRE));
     eventBus.post(new RobotStart(EventType.POST));
 
-    NamedCommands.registerCommand("intake", launcher.intake());
-    NamedCommands.registerCommand("shoot", launcher.launch());
+    // NamedCommands.registerCommand("intake", launcher.intake());
+    // NamedCommands.registerCommand("shoot", launcher.launch());
 
     SmartDashboard.putData("Auto Chooser", autoChooser);
   }
@@ -116,11 +121,13 @@ public class Robot extends TimedRobot {
       double rotationAmount = controller.getRightDirection().x;
       swerveDriver.drive(controller.getLeftDirection(), rotationAmount, true, controller.buttonPressed(3));
      }
-     if (lockedOnHoop) {
-       Vector2d closestHoop = sortedPositions.firstEntry().getValue();
-       Vector2d hoopDirection = swerveDriver.getPositionInches().minus(closestHoop).normalized();
-       swerveDriver.drive(controller.getLeftDirection(), new Vector2d(hoopDirection.y, hoopDirection.x), true);
-     }
+    // disabled due to sporadic movement
+    // requires CV for proper odometry and aiming
+    //  if (lockedOnHoop) {
+    //    Vector2d closestHoop = sortedPositions.firstEntry().getValue();
+    //    Vector2d hoopDirection = swerveDriver.getPositionInches().minus(closestHoop).normalized();
+    //    swerveDriver.drive(controller.getLeftDirection(), new Vector2d(hoopDirection.y, hoopDirection.x), true);
+    //  }
   }
 
   @Override

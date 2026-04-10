@@ -11,9 +11,11 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import lombok.Getter;
 import swervelib.SwerveController;
 import swervelib.SwerveDrive;
 import swervelib.SwerveModule;
+import swervelib.parser.PIDFConfig;
 import swervelib.parser.SwerveModulePhysicalCharacteristics;
 import swervelib.parser.SwerveParser;
 import swervelib.telemetry.SwerveDriveTelemetry;
@@ -29,11 +31,12 @@ import static edu.wpi.first.wpilibj.RobotBase.isSimulation;
 public class SwerveDriver {
   private final float maxMotorSpeed;
 
-  private final SwerveDrive swerveDriver;
+  @Getter private final SwerveDrive swerveDriver;
   private final Robot robot;
 
-  private double shakeFrequency = 10;
-  private double shakeAmplitude = 1.4;
+  private double shakeFrequency = 20;
+  private double shakeAmplitude = 1.8;
+  private double p = 0, i = 0 , d = 0;
   public SwerveDriver(float driveSpeed, Robot robot) {
     this.maxMotorSpeed = driveSpeed;
     this.robot = robot;
@@ -55,10 +58,15 @@ public class SwerveDriver {
     swerveDriver.setCosineCompensator(false);
     swerveDriver.setHeadingCorrection(false);
     swerveDriver.zeroGyro();
+  
+    robot.getNetworkTables().addEntry(String.format("Module P"), () -> { return p; });
+    robot.getNetworkTables().addEntry(String.format("Module I"), () -> { return i; });
+    robot.getNetworkTables().addEntry(String.format("Module D"), () -> { return d; });
   }
 
   private Timer shakeTimer = new Timer();
   public void driveAutonomous(ChassisSpeeds speed) {
+    speed = new ChassisSpeeds(speed.vxMetersPerSecond, speed.vyMetersPerSecond, speed.omegaRadiansPerSecond);
     SwerveModuleState[] states = swerveDriver.toServeModuleStates(
       speed,
       true
@@ -68,10 +76,15 @@ public class SwerveDriver {
 
   // fieldRelative defines whether the forward direction to move at is either the robot's forward direction or the field's
   public void drive(Vector2d movementInput, double rotationDelta, boolean fieldRelative, boolean shake) {
-    Translation2d direction = new Translation2d(movementInput.y, movementInput.x).times(maxMotorSpeed * movementInput.length());
-    double rotation = -rotationDelta * maxMotorSpeed;
+    for (SwerveModule module : this.swerveDriver.swerveDriveConfiguration.modules) {
+      module.setAnglePIDF(new PIDFConfig(p, i, d));
+      System.out.println("P: "+ p + " Set: " + module.getAnglePIDF().p);
+    }
 
-    if (Robot.getAlliance() == Alliance.Red)
+    Translation2d direction = new Translation2d(movementInput.y, movementInput.x).times(maxMotorSpeed * movementInput.length());
+    double rotation = rotationDelta * maxMotorSpeed;
+
+    if (Robot.getAlliance() == Alliance.Blue)
       direction = new Translation2d(-direction.getX(), -direction.getY());
 
     if (shake) {
@@ -95,6 +108,7 @@ public class SwerveDriver {
   }
 
   public void drive(Vector2d movementInput, Vector2d rotationInput, boolean fieldRelative) {
+    // robot.getNetworkTables().addEntry("Heading", this.swerveDriver.getYaw());
     double turnRadians = getRotationRadians();
     if (rotationInput.length() != 0)
       turnRadians = Math.atan2(-rotationInput.y, rotationInput.x) - Math.PI / 2;

@@ -10,6 +10,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import us.wltcs.frc.core.logging.Context;
 import us.wltcs.frc.core.math.vector2.Vector2d;
@@ -27,7 +28,7 @@ public class AutonomousDriver {
 	public AutonomousDriver(
     SwerveDriver swerveDriver,
     RobotConfig config,
-    PPHolonomicDriveController driveController
+    PPHolonomicDriveController driveController  
   ) {
     this.swerveDriver = swerveDriver;
     AutoBuilder.configure(
@@ -37,7 +38,9 @@ public class AutonomousDriver {
       (speeds) -> swerveDriver.driveAutonomous(speeds),
       driveController,
       config,
-      () -> false
+      () -> {
+        return Robot.getAlliance() == Alliance.Red;
+      }
     );
   }
 
