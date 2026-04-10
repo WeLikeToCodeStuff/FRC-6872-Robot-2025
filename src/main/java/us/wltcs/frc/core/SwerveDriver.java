@@ -9,6 +9,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import swervelib.SwerveController;
 import swervelib.SwerveDrive;
@@ -31,6 +32,8 @@ public class SwerveDriver {
   private final SwerveDrive swerveDriver;
   private final Robot robot;
 
+  private double shakeFrequency = 10;
+  private double shakeAmplitude = 1.4;
   public SwerveDriver(float driveSpeed, Robot robot) {
     this.maxMotorSpeed = driveSpeed;
     this.robot = robot;
@@ -42,7 +45,7 @@ public class SwerveDriver {
     try {
       this.swerveDriver = new SwerveParser(swerveJsonDirectory).createSwerveDrive(
         this.maxMotorSpeed,
-        new Pose2d(new Translation2d(edu.wpi.first.units.Units.Meters.of(500000), edu.wpi.first.units.Units.Meters.of(500000)), Rotation2d.fromDegrees(0))
+        new Pose2d(new Translation2d(edu.wpi.first.units.Units.Meters.of(4), edu.wpi.first.units.Units.Meters.of(4)), Rotation2d.fromDegrees(0))
       );
       System.out.println(swerveDriver.getPose());
     } catch (IOException e) {
@@ -54,6 +57,7 @@ public class SwerveDriver {
     swerveDriver.zeroGyro();
   }
 
+  private Timer shakeTimer = new Timer();
   public void driveAutonomous(ChassisSpeeds speed) {
     SwerveModuleState[] states = swerveDriver.toServeModuleStates(
       speed,
@@ -63,12 +67,21 @@ public class SwerveDriver {
   }
 
   // fieldRelative defines whether the forward direction to move at is either the robot's forward direction or the field's
-  public void drive(Vector2d movementInput, double rotationDelta, boolean fieldRelative) {
-    Translation2d direction = new Translation2d(-movementInput.y, -movementInput.x).times(maxMotorSpeed * movementInput.length());
+  public void drive(Vector2d movementInput, double rotationDelta, boolean fieldRelative, boolean shake) {
+    Translation2d direction = new Translation2d(movementInput.y, movementInput.x).times(maxMotorSpeed * movementInput.length());
     double rotation = -rotationDelta * maxMotorSpeed;
 
     if (Robot.getAlliance() == Alliance.Red)
       direction = new Translation2d(-direction.getX(), -direction.getY());
+
+    if (shake) {
+      if (!shakeTimer.isRunning())
+        shakeTimer.start(); 
+        
+      Vector2d robotForward = new Vector2d(Math.cos(getRotationRadians()), Math.sin(getRotationRadians()));
+      Vector2d motion = robotForward.times(Math.sin((shakeTimer.get() + Math.PI / 2) * shakeFrequency) * shakeAmplitude);
+      direction = new Translation2d(motion.x, motion.y);
+    }
 
     SwerveModuleState[] states;
     if (fieldRelative)

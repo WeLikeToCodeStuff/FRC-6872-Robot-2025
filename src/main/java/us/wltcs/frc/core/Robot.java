@@ -112,19 +112,15 @@ public class Robot extends TimedRobot {
       sortedPositions.put(direction.length(), position);
     }
 
-    // if (!lockedOnHoop) {
+     if (!lockedOnHoop) {
       double rotationAmount = controller.getRightDirection().x;
-      swerveDriver.drive(controller.getLeftDirection(), rotationAmount, true);
-    // }
-    // if (lockedOnHoop) {  
-      // Vector2d closestHoop = sortedPositions.firstEntry().getValue();
-      // Vector2d hoopDirection = swerveDriver.getPositionInches().minus(closestHoop).normalized();
-      // swerveDriver.drive(controller.getLeftDirection(), new Vector2d(hoopDirection.y, hoopDirection.x), true);
-    // }
-
-    // stateMachine.update();
-    // eventBus.post(new TeleoperatedPeriodicEvent(EventType.POST, this));
-    // lastRotation = swerveDriver.getRotationRadians();
+      swerveDriver.drive(controller.getLeftDirection(), rotationAmount, true, controller.buttonPressed(3));
+     }
+     if (lockedOnHoop) {
+       Vector2d closestHoop = sortedPositions.firstEntry().getValue();
+       Vector2d hoopDirection = swerveDriver.getPositionInches().minus(closestHoop).normalized();
+       swerveDriver.drive(controller.getLeftDirection(), new Vector2d(hoopDirection.y, hoopDirection.x), true);
+     }
   }
 
   @Override
