@@ -76,8 +76,9 @@ public class Robot extends TimedRobot {
     eventBus.post(new RobotStart(EventType.PRE));
     eventBus.post(new RobotStart(EventType.POST));
 
-    // NamedCommands.registerCommand("intake", launcher.intake());
-    // NamedCommands.registerCommand("shoot", launcher.launch());
+    NamedCommands.registerCommand("intake", launcher.intake());
+    NamedCommands.registerCommand("shoot", launcher.launch());
+    NamedCommands.registerCommand("reversedIntake", launcher.reversedIntake());
 
     SmartDashboard.putData("Auto Chooser", autoChooser);
   }
