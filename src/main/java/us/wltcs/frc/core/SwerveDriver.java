@@ -36,7 +36,6 @@ public class SwerveDriver {
 
   private double shakeFrequency = 20;
   private double shakeAmplitude = 1.8;
-  private double p = 0, i = 0 , d = 0;
   public SwerveDriver(float driveSpeed, Robot robot) {
     this.maxMotorSpeed = driveSpeed;
     this.robot = robot;
@@ -59,9 +58,9 @@ public class SwerveDriver {
     swerveDriver.setHeadingCorrection(false);
     swerveDriver.zeroGyro();
   
-    robot.getNetworkTables().addEntry(String.format("Module P"), () -> { return p; });
-    robot.getNetworkTables().addEntry(String.format("Module I"), () -> { return i; });
-    robot.getNetworkTables().addEntry(String.format("Module D"), () -> { return d; });
+    robot.getNetworkTables().addEntry(String.format("Module P"), swerveDriver.getModules()[0].getAnglePIDF().p);
+    robot.getNetworkTables().addEntry(String.format("Module I"), swerveDriver.getModules()[0].getAnglePIDF().i);
+    robot.getNetworkTables().addEntry(String.format("Module D"), swerveDriver.getModules()[0].getAnglePIDF().d);
   }
 
   private Timer shakeTimer = new Timer();
@@ -77,8 +76,12 @@ public class SwerveDriver {
   // fieldRelative defines whether the forward direction to move at is either the robot's forward direction or the field's
   public void drive(Vector2d movementInput, double rotationDelta, boolean fieldRelative, boolean shake) {
     for (SwerveModule module : this.swerveDriver.swerveDriveConfiguration.modules) {
-      module.setAnglePIDF(new PIDFConfig(p, i, d));
-      System.out.println("P: "+ p + " Set: " + module.getAnglePIDF().p);
+      module.setAnglePIDF(new PIDFConfig(
+        (double) robot.getNetworkTables().getValue("Module P"),
+        (double) robot.getNetworkTables().getValue("Module I"),
+        (double) robot.getNetworkTables().getValue("Module D")
+      ));
+      // System.out.println("P: "+ (double) robot.getNetworkTables().getValue("Module P") + " Set: " + module.getAnglePIDF().p);
     }
 
     Translation2d direction = new Translation2d(movementInput.y, movementInput.x).times(maxMotorSpeed * movementInput.length());

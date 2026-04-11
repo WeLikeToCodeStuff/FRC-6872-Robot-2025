@@ -20,8 +20,27 @@ public class LauncherListener {
     for (int i = 0; i < Robot.getInstance().getSwerveDriver().getSwerveDriver().getModules().length; i++) {
       // compare old PIDF to current one in dash
       PIDFConfig oldPIDF = Robot.getInstance().getSwerveDriver().getSwerveDriver().getModules()[i].getAnglePIDF();
-      PIDFConfig currentPIDF = new PIDFConfig((double) Robot.getInstance().getNetworkTables().getValue(String.format("Module P")), (double) Robot.getInstance().getNetworkTables().getValue(String.format("Module I")), (double) Robot.getInstance().getNetworkTables().getValue(String.format("Module D")));
+      Object pObj = Robot.getInstance().getNetworkTables().getValue(String.format("Module P"));
+      Object iObj = Robot.getInstance().getNetworkTables().getValue(String.format("Module I"));
+      Object dObj = Robot.getInstance().getNetworkTables().getValue(String.format("Module D"));
+      double pVal;
+      if (pObj instanceof Number) pVal = ((Number) pObj).doubleValue();
+      else {
+        try { pVal = Double.parseDouble(String.valueOf(pObj)); } catch (Exception ex) { pVal = 0.0; }
+      }
+      double iVal;
+      if (iObj instanceof Number) iVal = ((Number) iObj).doubleValue();
+      else {
+        try { iVal = Double.parseDouble(String.valueOf(iObj)); } catch (Exception ex) { iVal = 0.0; }
+      }
+      double dVal;
+      if (dObj instanceof Number) dVal = ((Number) dObj).doubleValue();
+      else {
+        try { dVal = Double.parseDouble(String.valueOf(dObj)); } catch (Exception ex) { dVal = 0.0; }
+      }
+      PIDFConfig currentPIDF = new PIDFConfig(pVal, iVal, dVal);
       if (oldPIDF.p != currentPIDF.p || oldPIDF.i != currentPIDF.i || oldPIDF.d != currentPIDF.d) {
+        // update hardware values to represent dashboard values
         Robot.getInstance().getSwerveDriver().getSwerveDriver().getModules()[i].setAnglePIDF(currentPIDF);
       }
     }
@@ -32,10 +51,10 @@ public class LauncherListener {
     }
 
 
-    if (event.getRobot().getController().buttonPressed(this.launcher.getIntakeButtonId())) this.launcher.intake();
+    if (event.getRobot().getController().buttonPressed(this.launcher.getIntakeButtonId())) this.launcher.intake().execute();
 
-    if (event.getRobot().getController().buttonPressed(this.launcher.getLauncherButtonid())) this.launcher.launch();
+    if (event.getRobot().getController().buttonPressed(this.launcher.getLauncherButtonid())) this.launcher.launch().execute();
 
-    if (event.getRobot().getController().buttonPressed(this.launcher.getReversedIntakeButtonId())) this.launcher.reversedIntake();
+    if (event.getRobot().getController().buttonPressed(this.launcher.getReversedIntakeButtonId())) this.launcher.reversedIntake().execute();
   };
 }

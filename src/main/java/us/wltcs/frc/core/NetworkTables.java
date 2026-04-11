@@ -64,6 +64,7 @@ public class NetworkTables {
     else if (value.isBoolean()) return entry.getBoolean(false);
     else if (value.isString()) return entry.getString("");
     else if (value.isInteger()) return entry.getInteger(0);
+    else if (!value.isValid()) return null;
     else
       throw new IllegalArgumentException("Unsupported dashboard type: " + value.getType());
   }
