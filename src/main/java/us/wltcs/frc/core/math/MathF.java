@@ -1,7 +1,6 @@
 package us.wltcs.frc.core.math;
 
 import lombok.experimental.UtilityClass;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
